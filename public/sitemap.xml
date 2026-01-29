@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://contentstudio-ai.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <lastmod>2026-01-21</lastmod>
+  </url>
+  
+  <!-- Trend Page -->
+  <url>
+    <loc>https://contentstudio-ai.com/trends</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-01-21</lastmod>
+  </url>
+  
+  <!-- Studio Page -->
+  <url>
+    <loc>https://contentstudio-ai.com/studio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-01-21</lastmod>
+  </url>
+  
+  <!-- Pricing Page -->
+  <url>
+    <loc>https://contentstudio-ai.com/pricing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-01-21</lastmod>
+  </url>
+  
+  <!-- Guide Page -->
+  <url>
+    <loc>https://contentstudio-ai.com/guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-01-21</lastmod>
+  </url>
+  
+  <!-- History Page -->
+  <url>
+    <loc>https://contentstudio-ai.com/history</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2026-01-21</lastmod>
+  </url>
+
+</urlset>

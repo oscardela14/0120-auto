@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0b0f19;
+  --color-surface: #1a1f2e;
+  --color-primary: #6366f1;
+  --color-secondary: #ec4899;
+  --color-accent: #8b5cf6;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased;
+  }
+}
+
+/* --- Light Mode Overrides (Global Inversion) --- */
+.light-mode {
+  background-color: #F8FAFC !important;
+  /* Soft Platinum */
+  color: #0F172A !important;
+  /* Slate 900 */
+}
+
+/* Backgrounds */
+.light-mode .bg-background {
+  background-color: #F8FAFC !important;
+}
+
+.light-mode .bg-surface,
+.light-mode .bg-surface\/30,
+.light-mode .bg-surface\/50,
+.light-mode .backdrop-blur-xl {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  /* Slate 200 */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -1px rgb(0 0 0 / 0.03) !important;
+}
+
+/* Text Colors (Invert) */
+.light-mode .text-white {
+  color: #0f172a !important;
+}
+
+.light-mode .text-gray-200 {
+  color: #334155 !important;
+}
+
+.light-mode .text-gray-300 {
+  color: #475569 !important;
+}
+
+.light-mode .text-gray-400 {
+  color: #64748b !important;
+}
+
+.light-mode .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+/* Borders & Overlays */
+.light-mode .border-white\/5,
+.light-mode .border-white\/10,
+.light-mode .border-white\/20 {
+  border-color: #cbd5e1 !important;
+  /* Slate 300 */
+}
+
+.light-mode .bg-white\/5,
+.light-mode .bg-white\/10 {
+  background-color: #f1f5f9 !important;
+  /* Slate 100 */
+}
+
+.light-mode .bg-black\/20,
+.light-mode .bg-black\/30,
+.light-mode .bg-black\/50 {
+  background-color: #FFFFFF !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* --- Exceptions (Keep Dark/White) --- */
+
+/* 1. Sidebar (Keep Dark Theme) */
+.light-mode aside {
+  background-color: #1a1f2e !important;
+  color: white !important;
+  border-right-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.light-mode aside .text-white {
+  color: white !important;
+}
+
+.light-mode aside .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.light-mode aside button:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.light-mode aside .bg-surface\/50 {
+  background-color: transparent !important;
+}
+
+/* Adjust backdrop if needed */
+
+/* 2. Primary Buttons & Badges (Keep White Text) */
+.light-mode .bg-primary .text-white,
+.light-mode .bg-secondary .text-white,
+.light-mode .bg-red-500 .text-white,
+.light-mode .bg-green-500 .text-white,
+.light-mode .bg-blue-500 .text-white,
+.light-mode .bg-gradient-to-r .text-white,
+.light-mode .bg-gradient-to-tr .text-white {
+  color: white !important;
+}
+
+/* 3. Inputs in Light Mode */
+.light-mode input[type="text"],
+.light-mode input[type="email"],
+.light-mode textarea {
+  background-color: #fff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Scrollbar Hide Utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Hide Number Input Spinners */
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

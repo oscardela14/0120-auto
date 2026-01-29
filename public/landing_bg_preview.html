@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page Background Concepts</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            height: 100%;
+            overflow: hidden;
+            color: white;
+            transition: background 0.5s ease;
+        }
+
+        /* --- UI OVERLAY (Hero Section) --- */
+        .hero-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background: #3b82f6;
+            /* Default Blue */
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bg-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .bg-btn:hover,
+        .bg-btn.active {
+            background: white;
+            color: black;
+            font-weight: bold;
+        }
+
+        /* --- BACKGROUND STYLES --- */
+
+        /* 1. Deep Network */
+        .bg-network {
+            background-color: #0b0f19;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 25%);
+        }
+
+        .network-grid {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* 2. Aurora Wave */
+        .bg-aurora {
+            background: #000;
+            overflow: hidden;
+        }
+
+        .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 10s infinite alternate;
+        }
+
+        .b1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: #03c75a;
+            animation-delay: 0s;
+        }
+
+        /* Naver Green */
+        .b2 {
+            bottom: -10%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: #3b82f6;
+            animation-delay: -2s;
+        }
+
+        /* Blue */
+        .b3 {
+            top: 30%;
+            left: 30%;
+            width: 40vw;
+            height: 40vw;
+            background: #8b5cf6;
+            animation-delay: -4s;
+        }
+
+        /* Purple */
+
+        /* 3. Glass Cube */
+        .bg-glass {
+            background: radial-gradient(circle at center, #1e293b, #0f172a);
+        }
+
+        .cube {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .c1 {
+            width: 150px;
+            height: 150px;
+            top: 20%;
+            left: 10%;
+            transform: rotate(-15deg);
+        }
+
+        .c2 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            right: 10%;
+            transform: rotate(10deg);
+        }
+
+        .c3 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 30%;
+            transform: rotate(45deg);
+        }
+
+        /* 4. Speed Light */
+        .bg-speed {
+            background: #000;
+        }
+
+        .speed-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200vmax;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(3, 199, 90, 0.5), transparent);
+            transform-origin: 0 0;
+            animation: spin 5s linear infinite;
+        }
+
+        .s1 {
+            animation-delay: 0s;
+            opacity: 0.3;
+        }
+
+        .s2 {
+            animation-delay: -1s;
+            opacity: 0.5;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        }
+
+        .s3 {
+            animation-delay: -2.5s;
+            opacity: 0.2;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg) translateX(-50%);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(-50%);
+            }
+        }
+
+        /* 5. Human + AI (Hybrid) */
+        .bg-hybrid {
+            background: linear-gradient(135deg, #1e1e1e 0%, #000000 100%);
+        }
+
+        .split {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg, rgba(234, 88, 12, 0.15) 0%, transparent 45%, transparent 55%, rgba(6, 182, 212, 0.15) 100%);
+        }
+
+        .orb-warm {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            background: #fb923c;
+            filter: blur(120px);
+            opacity: 0.2;
+        }
+
+        .orb-cool {
+            position: absolute;
+            bottom: 20%;
+            right: 10%;
+            width: 300px;
+            height: 300px;
+            background: #22d3ee;
+            filter: blur(120px);
+            opacity: 0.2;
+        }
+    </style>
+</head>
+
+<body class="bg-network">
+
+    <!-- Hero Content -->
+    <div class="hero-container">
+        <h1 id="hero-title">Social Auto AI</h1>
+        <p>블로그 저품질 걱정 끝. <br>가장 안전한 <strong>하이브리드 AI 파트너</strong></p>
+        <button id="cta-btn" class="cta-button">무료로 시작하기</button>
+    </div>
+
+    <!-- Background Layers -->
+    <div id="layer-container">
+        <!-- Default: Network Grid -->
+        <div class="network-grid"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="bg-btn active" onclick="setBg('network')">1. 딥 네트워크</button>
+        <button class="bg-btn" onclick="setBg('aurora')">2. 오로라 웨이브</button>
+        <button class="bg-btn" onclick="setBg('glass')">3. 글래스 큐브</button>
+        <button class="bg-btn" onclick="setBg('speed')">4. 스피드 라이트</button>
+        <button class="bg-btn" onclick="setBg('hybrid')">5. 휴먼 터치</button>
+    </div>
+
+    <script>
+        function setBg(type) {
+            const body = document.body;
+            const container = document.getElementById('layer-container');
+            const btns = document.querySelectorAll('.bg-btn');
+            const cta = document.getElementById('cta-btn');
+
+            // Reset Active Button
+            btns.forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Reset Content
+            container.innerHTML = '';
+            body.className = '';
+
+            if (type === 'network') {
+                body.className = 'bg-network';
+                container.innerHTML = '<div class="network-grid"></div>';
+                cta.style.background = '#3b82f6';
+            } else if (type === 'aurora') {
+                body.className = 'bg-aurora';
+                container.innerHTML = `
+                    <div class="aurora-blob b1"></div>
+                    <div class="aurora-blob b2"></div>
+                    <div class="aurora-blob b3"></div>
+                `;
+                cta.style.background = 'rgba(255,255,255,0.2)';
+                cta.style.backdropFilter = 'blur(10px)';
+                cta.style.border = '1px solid white';
+            } else if (type === 'glass') {
+                body.className = 'bg-glass';
+                container.innerHTML = `
+                    <div class="cube c1"></div>
+                    <div class="cube c2"></div>
+                    <div class="cube c3"></div>
+                `;
+                cta.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))';
+                cta.style.border = '1px solid rgba(255,255,255,0.2)';
+            } else if (type === 'speed') {
+                body.className = 'bg-speed';
+                for (let i = 0; i < 10; i++) {
+                    const el = document.createElement('div');
+                    el.className = `speed-line s${(i % 3) + 1}`;
+                    el.style.transform = `rotate(${i * 36}deg) translateX(-50%)`;
+                    container.appendChild(el);
+                }
+                cta.style.background = '#03c75a'; /* Naver Speed */
+                cta.style.color = 'black';
+            } else if (type === 'hybrid') {
+                body.className = 'bg-hybrid';
+                container.innerHTML = `
+                    <div class="split"></div>
+                    <div class="orb-warm"></div>
+                    <div class="orb-cool"></div>
+                `;
+                cta.style.background = 'linear-gradient(to right, #fb923c, #22d3ee)';
+                cta.style.color = 'black';
+            }
+        }
+    </script>
+</body>
+
+</html>

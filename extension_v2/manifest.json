@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "ContentStudio AI Helper",
+    "version": "1.0.0",
+    "description": "ContentStudio AI와 연동하여 네이버 블로그 자동 발행을 도와주는 확장 프로그램입니다.",
+    "permissions": [
+        "storage",
+        "scripting",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>",
+                "*://*.naver.com/*",
+                "*://*.blog.naver.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle",
+            "all_frames": true
+        }
+    ]
+}

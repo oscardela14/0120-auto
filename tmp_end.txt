@@ -1,0 +1,7 @@
+#TYPE System.String
+"PSPath","PSParentPath","PSChildName","PSDrive","PSProvider","ReadCount","Length"
+"C:\0120 ????(?? ???)\src\components\PreviewModal.jsx","C:\0120 ????(?? ???)\src\components","PreviewModal.jsx","C","Microsoft.PowerShell.Core\FileSystem","1191","18"
+"C:\0120 ????(?? ???)\src\components\PreviewModal.jsx","C:\0120 ????(?? ???)\src\components","PreviewModal.jsx","C","Microsoft.PowerShell.Core\FileSystem","1192","30"
+"C:\0120 ????(?? ???)\src\components\PreviewModal.jsx","C:\0120 ????(?? ???)\src\components","PreviewModal.jsx","C","Microsoft.PowerShell.Core\FileSystem","1193","27"
+"C:\0120 ????(?? ???)\src\components\PreviewModal.jsx","C:\0120 ????(?? ???)\src\components","PreviewModal.jsx","C","Microsoft.PowerShell.Core\FileSystem","1194","6"
+"C:\0120 ????(?? ???)\src\components\PreviewModal.jsx","C:\0120 ????(?? ???)\src\components","PreviewModal.jsx","C","Microsoft.PowerShell.Core\FileSystem","1195","2"
