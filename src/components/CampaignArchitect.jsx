@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowRight, Target, Share2, Globe, Clock, Zap } from 'lucide-react';
+import { Calendar, Target } from 'lucide-react';
 
 export const CampaignArchitect = ({ plan, topic }) => {
     if (!plan) return null;

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ShieldCheck, ShieldAlert, BadgeInfo, Zap, FileSearch, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Zap, CheckCircle2 } from 'lucide-react';
 
 export const AlgorithmGuardrail = ({ safetyData, suitabilityData }) => {
     return (

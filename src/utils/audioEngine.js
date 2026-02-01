@@ -14,7 +14,7 @@ const BGM_TRACKS = [
     { id: 'b2', name: 'Cyberpunk Beats', genre: 'fast', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' }
 ];
 
-export const matchAudioForContent = async (text, platform) => {
+export const matchAudioForContent = async (text) => {
     // Logic to select best voice and BGM
     const isHype = text.includes('!') || text.includes('🚨');
 

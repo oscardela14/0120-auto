@@ -12,7 +12,10 @@ export const ProfitPredictor = () => {
     const [volume, setVolume] = useState(0);
     const [prediction, setPrediction] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isIssuing, setIsIssuing] = useState(false);
+    const [isIssued, setIsIssued] = useState(false);
     const [dynamicTrends, setDynamicTrends] = useState([]);
+    const [selectedChannel, setSelectedChannel] = useState(null);
 
     useEffect(() => {
         const loadTrends = async () => {
@@ -42,11 +45,24 @@ export const ProfitPredictor = () => {
             return;
         }
         setIsLoading(true);
+        setIsIssued(false); // Reset issued state on new prediction
         setTimeout(() => {
             const result = predictROI(keyword, volume);
             setPrediction(result);
             setIsLoading(false);
         }, 800);
+    };
+
+    const handleIssueCertificate = () => {
+        if (isIssued) return;
+        setIsIssuing(true);
+        addNotification("알고리즘 기반 자산 권리 관계 확인 중...", "info");
+
+        setTimeout(() => {
+            setIsIssuing(false);
+            setIsIssued(true);
+            addNotification("자산 평가 보증서 발행 완료! 보관함에서 인증 마크를 확인할 수 있습니다.", "success");
+        }, 2000);
     };
 
     const formatNumber = (num) => {
@@ -208,133 +224,279 @@ export const ProfitPredictor = () => {
             </div>
 
             {prediction && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                >
-                    {/* Score Card */}
-                    <div className="bg-indigo-600 rounded-[32px] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col">
-                        <div className="absolute top-0 right-0 p-4 opacity-20"><TrendingUp size={80} /></div>
-                        <h3 className="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-                            Profitability Score
-                            <div className="group relative">
-                                <Info size={12} className="opacity-60 cursor-help" />
-                                <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-black/80 backdrop-blur-md rounded-lg text-[10px] leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
-                                    광고 단가(CPC)와 경쟁 강도를 종합 분석한 수익 잠재력 지수입니다.
+                <div className="space-y-4">
+                    {/* ROW 1: Metric Cards */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+                    >
+                        {/* 1. Stacked Column: Score & Revenue */}
+                        <div className="lg:col-span-1 flex flex-col gap-4">
+                            {/* Top: Profitability Score */}
+                            <div className="bg-indigo-600 p-5 text-white rounded-[24px] relative flex flex-col justify-between shadow-2xl h-full min-h-[160px]">
+                                <div className="absolute top-0 right-0 p-3 opacity-20"><TrendingUp size={48} /></div>
+
+                                <div>
+                                    <h3 className="text-[14px] font-black uppercase tracking-widest mb-1 flex items-center gap-2">
+                                        Profitability Score
+                                        <div className="group relative">
+                                            <Info size={10} className="opacity-60 cursor-help" />
+                                            <div className="absolute top-full left-0 mt-2 w-48 p-2 bg-black/80 backdrop-blur-md rounded-lg text-[10px] leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
+                                                광고 단가(CPC)와 경쟁 강도를 종합 분석한 수익 잠재력 지수입니다.
+                                            </div>
+                                        </div>
+                                    </h3>
+                                    <div className="flex items-baseline gap-1 mb-1">
+                                        <span className="text-4xl font-black tracking-tighter">{prediction.score}</span>
+                                        <span className="text-sm font-bold opacity-60">/100</span>
+                                    </div>
+                                    <p className="text-indigo-100 text-[12px] font-medium leading-relaxed tracking-tight line-clamp-2">
+                                        {prediction.score === 0 ? "수익성 분석 필요" : (
+                                            <>"{keyword}" 키워드는 <span className="font-black underline decoration-white/30 underline-offset-4">{prediction.score > 70 ? '황금 키워드' : prediction.score > 40 ? '수익 창출 가능' : '수익성 낮음'}</span> 단계입니다.</>
+                                        )}
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 px-2 py-1.5 bg-white/10 rounded-lg w-fit backdrop-blur-sm border border-white/10 mt-auto">
+                                    <Zap size={10} className="text-indigo-200" />
+                                    <span className="text-[12px] font-black uppercase tracking-widest truncate max-w-[120px]">{prediction.bestPlatform}</span>
                                 </div>
                             </div>
-                        </h3>
-                        <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-6xl font-black">{prediction.score}</span>
-                            <span className="text-xl font-bold opacity-60">/100</span>
-                        </div>
-                        <p className="text-indigo-100 text-[11px] font-medium leading-relaxed mb-6">
-                            {prediction.score === 0 ? "키워드와 검색량을 입력하여 수익성을 분석하세요." : (
-                                <>"{keyword}" 키워드는 <span className="font-black underline">{prediction.score > 70 ? '황금 키워드' : prediction.score > 40 ? '수익 창출 가능' : '수익성 낮음'}</span> 단계입니다. 효율적인 리소스로 고수익을 노릴 수 있는 구간입니다.</>
-                            )}
-                        </p>
-                        <div className="mt-auto">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl w-fit">
-                                <Zap size={14} />
-                                <span className="text-xs font-black uppercase tracking-widest">Best Platform: {prediction.bestPlatform}</span>
+
+                            {/* Bottom: Expected Revenue */}
+                            <div className="bg-[#0f1218]/60 backdrop-blur-2xl border border-white/5 p-5 rounded-[24px] flex flex-col justify-between shadow-2xl h-full min-h-[160px] relative overflow-hidden">
+                                <div className="relative z-10 flex flex-col h-full justify-between">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h3 className="text-[14px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                            Expected Revenue
+                                            <div className="group relative">
+                                                <Info size={10} className="opacity-60 cursor-help" />
+                                                <div className="absolute top-full left-0 mt-2 w-48 p-2 bg-black/80 backdrop-blur-md rounded-lg text-[10px] leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
+                                                    CPM(1,000회 노출당 수익) ₩2,500 및 제휴 전환율 1.5%를 가정하여 산출된 예상치입니다.
+                                                </div>
+                                            </div>
+                                        </h3>
+                                        <div className="p-1.5 bg-emerald-500/10 rounded-lg text-emerald-400 border border-emerald-500/20"><Coins size={14} /></div>
+                                    </div>
+                                    <div className="mb-2">
+                                        <div className="flex items-baseline gap-1 mb-1">
+                                            <span className="text-2xl font-black text-white tracking-tight">₩{prediction.projectedRevenue.toLocaleString()}</span>
+                                        </div>
+                                        <p className="text-[12px] text-gray-400 font-medium leading-relaxed tracking-tight">
+                                            광고 수익 + 제휴 전환 기댓값 합산.
+                                        </p>
+                                    </div>
+                                    <div className="pt-2 border-t border-white/5 mt-auto">
+                                        <div className="flex justify-between items-center text-[9px] font-black uppercase text-gray-500 mb-1">
+                                            <span className="flex items-center gap-1">Difficulty</span>
+                                            <span className={cn(
+                                                prediction.difficulty === 'EASY' ? 'text-emerald-400' :
+                                                    prediction.difficulty === 'MEDIUM' ? 'text-amber-400' : 'text-red-400'
+                                            )}>{prediction.difficulty}</span>
+                                        </div>
+                                        <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
+                                            <div style={{ width: prediction.difficulty === 'EASY' ? '30%' : prediction.difficulty === 'MEDIUM' ? '60%' : '90%' }} className={cn("h-full",
+                                                prediction.difficulty === 'EASY' ? 'bg-emerald-500' :
+                                                    prediction.difficulty === 'MEDIUM' ? 'bg-amber-500' : 'bg-red-500'
+                                            )} />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Revenue Projection */}
-                    <div className="bg-[#0f1218]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[32px] flex flex-col justify-between group/card relative">
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                    Expected Revenue
+                        {/* 2. Asset Valuation Card (Full Height) */}
+                        <div className="lg:col-span-1 bg-[#0f1218]/60 backdrop-blur-2xl border border-white/5 p-6 rounded-[24px] flex flex-col group/card relative overflow-hidden min-h-[340px]">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 blur-2xl rounded-full" />
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-[14px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    Asset Valuation
                                     <div className="group relative">
-                                        <Info size={12} className="opacity-60 cursor-help" />
-                                        <div className="absolute bottom-full left-0 mb-2 w-56 p-2 bg-black/80 backdrop-blur-md rounded-lg text-[10px] leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
-                                            CPM(1,000회 노출당 수익) ₩2,500 및 제휴 전환율 1.5%를 가정하여 산출된 예상치입니다.
+                                        <Info size={10} className="opacity-60 cursor-help" />
+                                        <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-black/80 backdrop-blur-md rounded-lg text-[10px] leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none text-right">
+                                            사용자 검색량 대비 현재 발행되어 있는 콘텐츠의 밀도(Density)입니다.
                                         </div>
                                     </div>
                                 </h3>
-                                <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400"><Coins size={20} /></div>
+                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><PieChart size={18} /></div>
                             </div>
-                            <div className="flex items-baseline gap-1 mb-2">
-                                <span className="text-4xl font-black text-white">₩{prediction.projectedRevenue.toLocaleString()}</span>
-                            </div>
-                            <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
-                                광고 수익(AdSense)과 제휴 마케팅 전환 기댓값을 합산한 수치입니다. <span className="text-emerald-500/80 font-bold">콘텐츠 1건당</span> 기대할 수 있는 잠재 가치입니다.
-                            </p>
-                        </div>
-                        <div className="pt-6 border-t border-white/5 mt-8">
-                            <div className="flex justify-between items-center text-[10px] font-black uppercase text-gray-500 mb-2">
-                                <span className="flex items-center gap-1">Difficulty Level <ShieldAlert size={10} /></span>
-                                <span className={cn(
-                                    prediction.difficulty === 'EASY' ? 'text-emerald-400' :
-                                        prediction.difficulty === 'MEDIUM' ? 'text-amber-400' : 'text-red-400'
-                                )}>{prediction.difficulty}</span>
-                            </div>
-                            <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                                <div style={{ width: prediction.difficulty === 'EASY' ? '30%' : prediction.difficulty === 'MEDIUM' ? '60%' : '90%' }} className={cn("h-full",
-                                    prediction.difficulty === 'EASY' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' :
-                                        prediction.difficulty === 'MEDIUM' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]'
-                                )} />
-                            </div>
-                            <p className="text-[9px] text-gray-600 mt-2 font-medium">대형 채널들의 도메인 파워 및 키워드 점유율 기반 분석</p>
-                        </div>
-                    </div>
 
-                    {/* Market Saturation */}
-                    <div className="bg-[#0f1218]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[32px] flex flex-col">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                Market Saturation
-                                <div className="group relative">
-                                    <Info size={12} className="opacity-60 cursor-help" />
-                                    <div className="absolute bottom-full right-0 mb-2 w-56 p-2 bg-black/80 backdrop-blur-md rounded-lg text-[10px] leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none text-right">
-                                        사용자 검색량 대비 현재 발행되어 있는 콘텐츠의 밀도(Density)입니다.
+                            <div className="flex-1 flex flex-col justify-center space-y-5">
+                                <div className="p-3 bg-white/5 rounded-xl border border-white/10 relative">
+                                    <span className="text-[12px] text-gray-500 font-bold uppercase block mb-1">Guaranteed Equity</span>
+                                    <div className="text-2xl font-black text-white">₩{(prediction.projectedRevenue * 12).toLocaleString()}</div>
+                                    <p className="text-[12px] text-gray-400 mt-0.5">1년 누적 예상 자산 가치</p>
+                                </div>
+
+                                <div className="p-3 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl border border-blue-500/30 relative overflow-hidden group/cert">
+                                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/cert:opacity-100 transition-opacity" />
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <ShieldAlert size={12} className="text-blue-400" />
+                                        <span className="text-[9px] font-black text-white uppercase tracking-widest">Certificate</span>
+                                    </div>
+                                    <p className="text-[9px] text-blue-100/60 leading-tight font-medium mb-3">
+                                        "평균 <span className="text-white">CPC ₩1,850</span> 보장 구간"
+                                    </p>
+                                    <button
+                                        onClick={handleIssueCertificate}
+                                        disabled={isIssuing || isIssued}
+                                        className={cn(
+                                            "w-full py-2 text-[9px] font-black rounded-lg transition-all uppercase tracking-widest flex items-center justify-center gap-2",
+                                            isIssued
+                                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default"
+                                                : "bg-blue-600 text-white hover:bg-blue-500 active:scale-95 shadow-lg shadow-blue-900/40"
+                                        )}
+                                    >
+                                        {isIssuing ? <Zap className="animate-spin" size={10} /> : isIssued ? <ShieldAlert size={10} /> : "발행하기"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Detailed Breakdown Card */}
+                        <div className="lg:col-span-1 bg-[#1a1c26] backdrop-blur-2xl border border-white/5 p-6 rounded-[24px] flex flex-col shadow-2xl min-h-[340px] relative overflow-hidden">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-[14px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    Detail Metrics
+                                </h3>
+                                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400"><BarChart3 size={18} /></div>
+                            </div>
+
+                            <div className="space-y-3 flex-1">
+                                <div className="flex justify-between items-center p-2.5 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
+                                    <span className="text-[15px] text-gray-400 font-medium">Est. CPC</span>
+                                    <span className="text-[15px] font-black text-white">
+                                        ₩{(1250 + prediction.score * 12).toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center p-2.5 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
+                                    <span className="text-[15px] text-gray-400 font-medium">CTR</span>
+                                    <span className="text-[15px] font-black text-emerald-400">
+                                        {(2.8 + prediction.score * 0.03).toFixed(1)}%
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center p-2.5 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
+                                    <span className="text-[15px] text-gray-400 font-medium">Conversion</span>
+                                    <span className="text-[15px] font-black text-indigo-400">
+                                        {(1.2 + prediction.score * 0.015).toFixed(1)}%
+                                    </span>
+                                </div>
+
+                                <div className="mt-auto pt-3 border-t border-white/5">
+                                    <div className="text-[14px] text-gray-500 uppercase tracking-widest mb-2 font-bold">Trend Analysis</div>
+                                    <div className={cn(
+                                        "flex items-center gap-2 text-[15px] font-bold p-2 rounded-lg",
+                                        prediction.score >= 50 ? "bg-emerald-500/5 text-emerald-400" : "bg-amber-500/5 text-amber-400"
+                                    )}>
+                                        <TrendingUp size={18} className={prediction.score < 50 ? "rotate-180" : ""} />
+                                        <span>
+                                            {prediction.score >= 50 ? "Rising Trend" : "Stable Trend"}
+                                            ({prediction.score >= 50 ? "+" : ""}{Math.floor((prediction.score - 40) / 2)}%)
+                                        </span>
                                     </div>
                                 </div>
-                            </h3>
-                            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400"><PieChart size={20} /></div>
-                        </div>
-                        <div className="relative w-32 h-32 mx-auto mb-6 flex-shrink-0">
-                            <svg className="w-full h-full transform -rotate-90">
-                                <circle cx="64" cy="64" r="54" stroke="rgba(255,255,255,0.05)" strokeWidth="10" fill="transparent" />
-                                <motion.circle
-                                    cx="64" cy="64" r="54"
-                                    stroke={prediction.saturationIndex > 70 ? '#f87171' : prediction.saturationIndex > 40 ? '#fbbf24' : '#60a5fa'}
-                                    strokeWidth="10"
-                                    fill="transparent"
-                                    strokeDasharray={339.3}
-                                    initial={{ strokeDashoffset: 339.3 }}
-                                    animate={{ strokeDashoffset: 339.3 - (339.3 * prediction.saturationIndex / 100) }}
-                                    transition={{ duration: 1.5, ease: "easeOut" }}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-2xl font-black text-white">{prediction.saturationIndex}%</span>
-                                <span className="text-[8px] text-gray-500 font-black uppercase">Density</span>
                             </div>
                         </div>
-                        <div className="text-center mb-6">
-                            <span className={cn(
-                                "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter",
-                                prediction.saturationStatus === 'CRITICAL' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                                    prediction.saturationStatus === 'HIGH' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                                        'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                            )}>
-                                {prediction.saturationStatus === 'CRITICAL' ? '레드오션 (피해 가세요)' :
-                                    prediction.saturationStatus === 'HIGH' ? '경쟁 치열' : '블루오션 (진입 추천)'}
-                            </span>
+                    </motion.div>
+
+                    {/* ROW 2: Command Center Extensions */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                    >
+                        {/* 5. Competitor Intelligence (Span 1) */}
+                        <div className="lg:col-span-1 bg-[#0f1218]/60 backdrop-blur-2xl border border-white/5 p-6 rounded-[24px] min-h-[300px]">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-[14px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    Competitor Intelligence
+                                </h3>
+                                <div className="p-2 bg-orange-500/10 rounded-lg text-orange-400"><Target size={18} /></div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {[1, 2, 3, 4].map((i) => {
+                                    const isSelected = selectedChannel === i;
+                                    return (
+                                        <div
+                                            key={i}
+                                            onClick={() => setSelectedChannel(isSelected ? null : i)}
+                                            className={cn(
+                                                "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 group cursor-pointer",
+                                                isSelected
+                                                    ? "bg-indigo-600/20 border-indigo-500/50 hover:bg-indigo-600/30 shadow-[0_0_15px_-3px_rgba(79,70,229,0.2)]"
+                                                    : "bg-white/5 border-white/5 hover:bg-white/10"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold transition-colors shrink-0",
+                                                isSelected
+                                                    ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 scale-105"
+                                                    : "bg-gray-700 text-gray-400 group-hover:bg-indigo-600 group-hover:text-white"
+                                            )}>
+                                                CH{i}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className={cn(
+                                                    "text-[13px] font-bold truncate transition-colors",
+                                                    isSelected ? "text-indigo-200" : "text-white group-hover:text-indigo-300"
+                                                )}>Top Ranker Channel {i}</p>
+                                                <p className="text-[13px] text-gray-500 truncate">Views: {(150000 - i * 12000).toLocaleString()} • Subs: {(5000 - i * 300).toLocaleString()}</p>
+                                            </div>
+                                            <div className={cn(
+                                                "transition-colors",
+                                                isSelected ? "text-indigo-400" : "text-gray-600 group-hover:text-white"
+                                            )}>
+                                                <ArrowUpRight size={12} />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-white/5 flex gap-2 overflow-x-auto no-scrollbar">
+                                <span className="px-3 py-1 bg-white/5 rounded-lg text-[13px] text-gray-400 whitespace-nowrap">🔥 High Saturation</span>
+                                <span className="px-3 py-1 bg-white/5 rounded-lg text-[13px] text-gray-400 whitespace-nowrap">⚡ Fast Growth</span>
+                                <span className="px-3 py-1 bg-white/5 rounded-lg text-[13px] text-gray-400 whitespace-nowrap">💎 Premium Ad Value</span>
+                            </div>
                         </div>
-                        <p className="text-[10px] text-gray-500 font-medium leading-relaxed text-center mt-auto">
-                            현재 시판 중인 콘텐츠 대비 공급 부족 상태입니다. 지금 발행 시 상위 노출 확률이 매우 높습니다.
-                        </p>
-                    </div>
-                </motion.div>
+
+                        {/* 6. AI Action Plan (Span 1) */}
+                        <div className="lg:col-span-1 bg-gradient-to-br from-[#1a1c26] to-[#0f1218] backdrop-blur-2xl border border-white/5 p-6 rounded-[24px] min-h-[300px] relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-5"><Zap size={100} /></div>
+                            <div className="flex items-center justify-between mb-6 relative z-10">
+                                <h3 className="text-[14px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    AI Action Plan
+                                </h3>
+                                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><Zap size={18} /></div>
+                            </div>
+
+                            <ul className="space-y-3 relative z-10">
+                                <li className="flex gap-3">
+                                    <div className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[13px] font-bold shrink-0 mt-0.5">1</div>
+                                    <p className="text-[13px] text-gray-300 leading-relaxed"><span className="text-white font-bold">썸네일 최적화:</span> "충격", "논란" 등의 키워드보다 "실제 후기", "숫자" 중심의 카피라이팅 권장</p>
+                                </li>
+                                <li className="flex gap-3">
+                                    <div className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[13px] font-bold shrink-0 mt-0.5">2</div>
+                                    <p className="text-[13px] text-gray-300 leading-relaxed"><span className="text-white font-bold">도입부 후킹:</span> 3초 내에 결론부터 제시하여 이탈률 방어 필요</p>
+                                </li>
+                                <li className="flex gap-3">
+                                    <div className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[13px] font-bold shrink-0 mt-0.5">3</div>
+                                    <p className="text-[13px] text-gray-300 leading-relaxed"><span className="text-white font-bold">업로드 골든타임:</span> 평일 오후 6시~8시 사이 트래픽 급증 예상</p>
+                                </li>
+                            </ul>
+
+                            <button className="w-full mt-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-[13px] font-bold text-gray-300 transition-all flex items-center justify-center gap-2">
+                                Full Action Plan 보기 <ArrowUpRight size={12} />
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
             )}
         </div>
     );
 };
+
 
 export default ProfitPredictor;

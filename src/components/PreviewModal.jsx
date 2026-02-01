@@ -166,6 +166,39 @@ export const PreviewModal = ({ isOpen, onClose, onConfirm, data }) => {
 
     if (!isOpen || !editedData) return null;
 
+    const isMobileFormat = ['YouTube Shorts', 'Instagram', 'Instagram Reels'].includes(editedData.platform);
+    const isThreads = editedData.platform === 'Threads';
+    const isBlog = editedData.platform === 'Naver Blog';
+
+    const imgWidth = (isMobileFormat || isThreads) ? 720 : 1280;
+    const imgHeight = (isMobileFormat || isThreads) ? 1280 : 640;
+
+    // Helper to generate smart prompt if missing
+    const getSmartPrompt = (t, p) => {
+        const topicLower = (t || '').toLowerCase();
+        let base = 'aesthetic minimal background';
+        if (topicLower.includes('게임') || topicLower.includes('game')) base = 'cyberpunk gaming room, neon lights, computer setup, 8k';
+        else if (topicLower.includes('요리') || topicLower.includes('푸드') || topicLower.includes('food')) base = 'gourmet food plating, professional photography, cinematic lighting';
+        else if (topicLower.includes('여행') || topicLower.includes('브이로그') || topicLower.includes('travel')) base = 'beautiful nature landscape, travel vibes, sunny day, 8k';
+        else if (topicLower.includes('뷰티') || topicLower.includes('패션') || topicLower.includes('beauty')) base = 'cosmetics products, pastel aesthetic, soft lighting, minimalist beauty';
+        else if (topicLower.includes('운동') || topicLower.includes('헬스') || topicLower.includes('health')) base = 'gym workout environment, fitness equipment, energetic lighting';
+        else if (topicLower.includes('테크') || topicLower.includes('가전') || topicLower.includes('tech')) base = 'modern tech workspace, minimal desk, gadgets, clean white aesthetic';
+        else if (topicLower.includes('동기부여')) base = 'majestic mountain sunrise, inspirational nature, rays of light';
+        else if (topicLower.includes('동물') || topicLower.includes('cat') || topicLower.includes('dog')) base = 'cute pet portrait, fluffy, natural light';
+        else if (topicLower.includes('교육') || topicLower.includes('꿀팁') || topicLower.includes('study') || topicLower.includes('tips')) base = 'cozy study desk, open notebook, library atmosphere, warm lighting, books, coffee';
+        else if (topicLower.includes('금융') || topicLower.includes('재테크') || topicLower.includes('돈') || topicLower.includes('finance') || topicLower.includes('stcok')) base = 'modern professional office desk, financial growth charts, golden coins, business success atmosphere, high quality';
+
+        const ratioParams = (isMobileFormat || isThreads) ? 'vertical, 9:16 aspect ratio' : 'wide, 2:1 aspect ratio';
+
+        // Context-aware enrichment
+        const contentContext = editedData.script?.[0]?.visual || editedData.sections?.[0]?.title || editedData.title || '';
+        const smartBase = `${contentContext}, ${base}`;
+
+        return `Subject: ${t}, Visualization: ${smartBase}, Style: ${ratioParams}, Cinematic Lighting, High Quality, Photorealistic, 8k`;
+    };
+
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(getSmartPrompt(editedData.topic, editedData.platform))}?width=${imgWidth}&height=${imgHeight}&seed=${imageSeed}&nologo=true&model=flux&t=${imageLoadTrigger}`;
+
     const handleConfirm = (actionType = 'save') => {
         if (actionType === 'upload') {
             // Check if account is connected (Mock)
@@ -177,7 +210,7 @@ export const PreviewModal = ({ isOpen, onClose, onConfirm, data }) => {
                 return;
             }
         }
-        onConfirm({ ...editedData, action: actionType });
+        onConfirm({ ...editedData, actionType });
     };
 
     const handleAuthSubmit = (e) => {
@@ -192,13 +225,11 @@ export const PreviewModal = ({ isOpen, onClose, onConfirm, data }) => {
             addNotification(`${data.platform} 계정이 성공적으로 연결되었습니다.`, 'success');
 
             // Auto-proceed to upload after connection
-            onConfirm({ ...editedData, action: 'upload' });
+            onConfirm({ ...editedData, actionType: 'upload' });
         }, 1500);
     };
 
-    const isMobileFormat = ['YouTube Shorts', 'Instagram', 'Instagram Reels'].includes(editedData.platform);
-    const isThreads = editedData.platform === 'Threads';
-    const isBlog = editedData.platform === 'Naver Blog';
+
 
     const handlePlay = () => {
         setIsPlaying(!isPlaying);
@@ -211,42 +242,7 @@ export const PreviewModal = ({ isOpen, onClose, onConfirm, data }) => {
         setIsImageLoading(true);
     };
 
-    // Helper to generate smart prompt if missing
-    const getSmartPrompt = (t, p) => {
-        // Use locally generated prompt logic if the one from data is missing or seems generic
-        const topicLower = (t || '').toLowerCase();
 
-        // Base prompt construction
-        let base = 'aesthetic minimal background';
-        if (topicLower.includes('게임') || topicLower.includes('game')) base = 'cyberpunk gaming room, neon lights, computer setup, 8k';
-        else if (topicLower.includes('요리') || topicLower.includes('푸드') || topicLower.includes('food')) base = 'gourmet food plating, professional photography, cinematic lighting';
-        else if (topicLower.includes('여행') || topicLower.includes('브이로그') || topicLower.includes('travel')) base = 'beautiful nature landscape, travel vibes, sunny day, 8k';
-        else if (topicLower.includes('뷰티') || topicLower.includes('패션') || topicLower.includes('beauty')) base = 'cosmetics products, pastel aesthetic, soft lighting, minimalist beauty';
-        else if (topicLower.includes('운동') || topicLower.includes('헬스') || topicLower.includes('health')) base = 'gym workout environment, fitness equipment, energetic lighting';
-        else if (topicLower.includes('테크') || topicLower.includes('가전') || topicLower.includes('tech')) base = 'modern tech workspace, minimal desk, gadgets, clean white aesthetic';
-        else if (topicLower.includes('동기부여')) base = 'majestic mountain sunrise, inspirational nature, rays of light';
-        else if (topicLower.includes('동물') || topicLower.includes('cat') || topicLower.includes('dog')) base = 'cute pet portrait, fluffy, natural light';
-        else if (topicLower.includes('교육') || topicLower.includes('꿀팁') || topicLower.includes('study') || topicLower.includes('tips')) base = 'cozy study desk, open notebook, library atmosphere, warm lighting, books, coffee';
-        else if (topicLower.includes('금융') || topicLower.includes('재테크') || topicLower.includes('돈') || topicLower.includes('finance') || topicLower.includes('stcok')) base = 'modern professional office desk, financial growth charts, golden coins, business success atmosphere, high quality';
-
-        // Add 'wide' or 'vertical' for better semantic understanding by the model
-        // Mobile (375x750 = 1:2), Blog (Head = ~2:1)
-        const ratioParams = (isMobileFormat || isThreads) ? 'vertical, 9:16 aspect ratio' : 'wide, 2:1 aspect ratio';
-
-        return `${base}, ${ratioParams}, high quality, photorealistic, centered composition`;
-    };
-
-
-
-    // Dimensions matched to UI containers to prevent cropping
-    // Mobile: 375x750 (1:2) -> 720x1440
-    // Blog: Header is h-64 (~256px) and max-w-2xl (~672px) -> ~2.6:1. Let's use 1080x540 (2:1) for safety or 1280x640.
-    const imgWidth = (isMobileFormat || isThreads) ? 720 : 1280;
-    const imgHeight = (isMobileFormat || isThreads) ? 1280 : 640;
-
-    // Use the redirect URL which is more robust against API changes
-    // IMPORTANT: Use controlled imageLoadTrigger instead of Date.now() to prevent flicker but allow refresh
-    const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(getSmartPrompt(editedData.topic, editedData.platform))}.jpg?width=${imgWidth}&height=${imgHeight}&seed=${imageSeed}&nologo=true&t=${imageLoadTrigger}`;
 
     const handleWheelReorder = (e, index, type) => {
         // Only trigger if the item is focused (active element is inside)
@@ -732,19 +728,25 @@ export const PreviewModal = ({ isOpen, onClose, onConfirm, data }) => {
 
                                                 const newDrafts = prev.drafts ? prev.drafts.map(d => {
                                                     if (typeof d === 'string') return humanizeText(d);
-                                                    return { ...d, text: humanizeText(d.text || d.content || "") };
+                                                    const newText = humanizeText(d.text || d.content || "");
+                                                    return { ...d, text: newText, content: newText };
                                                 }) : prev.drafts;
 
                                                 const newScript = prev.script ? prev.script.map(s => {
                                                     if (typeof s === 'string') return humanizeText(s);
-                                                    return { ...s, text: humanizeText(s.text || "") };
+                                                    const newText = humanizeText(s.text || s.content || "");
+                                                    return { ...s, text: newText, content: newText };
                                                 }) : prev.script;
 
-                                                const newSections = prev.sections ? prev.sections.map(s => ({
-                                                    ...s,
-                                                    title: humanizeText(s.title || ""),
-                                                    content: humanizeText(s.content || s.text || "")
-                                                })) : prev.sections;
+                                                const newSections = prev.sections ? prev.sections.map(s => {
+                                                    const newContent = humanizeText(s.content || s.text || "");
+                                                    return {
+                                                        ...s,
+                                                        title: humanizeText(s.title || ""),
+                                                        content: newContent,
+                                                        text: newContent // Sync both to be safe
+                                                    };
+                                                }) : prev.sections;
 
                                                 const newContent = prev.content ? humanizeText(prev.content) : prev.content;
 

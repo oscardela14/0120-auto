@@ -35,7 +35,7 @@ export const getExchangeRate = async () => {
 };
 
 // 2. Platform Sync Simulation (YouTube, Coupang, Meta)
-export const syncPlatformData = async (userId) => {
+export const syncPlatformData = async () => {
     return {
         youtube: {
             avgCPM: 4.85, // USD
@@ -282,10 +282,10 @@ export const calculateRevenueData = (history = [], settings = { adMultiplier: 1,
     };
 
     return {
-        totalPotential: Math.floor(baseAdRev + baseAffiliateRev + baseSaving + organicBonus),
-        adRevenue: Math.floor(baseAdRev),
-        affiliateRevenue: Math.floor(baseAffiliateRev),
-        operationalSavings: Math.floor(baseSaving),
+        totalPotential: Math.round(baseAdRev + baseAffiliateRev + baseSaving + organicBonus),
+        adRevenue: Math.round(baseAdRev),
+        affiliateRevenue: Math.round(baseAffiliateRev),
+        operationalSavings: Math.round(baseSaving),
         withdrawCount: Math.floor(baseAdRev / 30000),
         growth: growthRate,
         trendPoints: getTrendPoints(),

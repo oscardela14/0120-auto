@@ -104,7 +104,7 @@ const DashboardLayout = () => {
         connectAccount,
         disconnectAccount,
         connectedAccounts,
-        getCurrentPlanDetails,
+        planDetails,
         usage,
         history // Destructure history
     } = useUser();
@@ -113,8 +113,6 @@ const DashboardLayout = () => {
 
     // State for Sidebar
     const [collapsed, setCollapsed] = useState(false);
-
-    const planDetails = getCurrentPlanDetails ? getCurrentPlanDetails() : { name: user?.plan === 'pro' ? 'PRO' : 'FREE' };
     const limit = planDetails.monthly_limit || 20;
     const usagePercentage = limit === -1 ? 100 : Math.min(100, (usage?.current_month / limit) * 100);
 
@@ -156,7 +154,7 @@ const DashboardLayout = () => {
             '/studio': '콘텐츠 스튜디오',
             '/production': '프로덕션 랩',
             '/growth': '그로스 전략',
-            '/twin': '디지털 트윈',
+
             '/revenue': '수익 마스터 보드',
             '/history': '보관함',
             '/pricing': '멤버십',
@@ -295,10 +293,13 @@ const DashboardLayout = () => {
                                             className="flex flex-col items-center gap-2 group cursor-pointer"
                                         >
                                             <div
-                                                className={`relative w-14 h-14 rounded-full p-[3px] transition-all group-hover:scale-105 ${user?.plan === 'pro'
-                                                    ? 'bg-gradient-to-tr from-yellow-300 via-yellow-500 to-yellow-600 shadow-[0_0_20px_rgba(234,179,8,0.6)]'
-                                                    : 'bg-gradient-to-tr from-indigo-500 to-purple-600'
-                                                    }`}
+                                                className={cn(
+                                                    "relative w-14 h-14 rounded-full p-[3px] transition-all group-hover:scale-105 shadow-xl",
+                                                    user?.plan === 'business' ? "bg-gradient-to-tr from-orange-400 via-red-500 to-rose-600 shadow-orange-500/40" :
+                                                        user?.plan === 'pro' ? "bg-gradient-to-tr from-yellow-300 via-yellow-500 to-yellow-600 shadow-yellow-500/40" :
+                                                            user?.plan === 'starter' ? "bg-gradient-to-tr from-blue-400 to-cyan-500 shadow-blue-500/40" :
+                                                                "bg-gradient-to-tr from-indigo-500 to-purple-600"
+                                                )}
                                             >
                                                 <div className="w-full h-full rounded-full bg-[#0F0F12] overflow-hidden relative border border-white/10 group-hover:border-white/20 transition-colors shadow-inner">
                                                     <img
@@ -307,25 +308,39 @@ const DashboardLayout = () => {
                                                         className="w-full h-full object-cover"
                                                     />
                                                 </div>
-                                                {user?.plan === 'pro' && (
-                                                    <div className="absolute -top-1 -right-1 bg-yellow-400 text-black p-1 rounded-full border-2 border-[#0f111a] shadow-lg transform rotate-12">
+                                                {user?.plan !== 'free' && (
+                                                    <div className={cn(
+                                                        "absolute -top-1 -right-1 p-1 rounded-full border-2 border-[#0f111a] shadow-lg transform rotate-12",
+                                                        user?.plan === 'business' ? "bg-orange-500 text-white" :
+                                                            user?.plan === 'pro' ? "bg-yellow-400 text-black" :
+                                                                "bg-blue-500 text-white"
+                                                    )}>
                                                         <Crown size={12} fill="currentColor" strokeWidth={3} />
                                                     </div>
                                                 )}
                                             </div>
                                             <span className={cn(
-                                                "px-4 py-2 rounded-[8px] text-[12px] font-black uppercase tracking-[0.15em] leading-none shadow-md",
-                                                user?.plan === 'pro' ? "bg-yellow-400 text-black shadow-yellow-500/30" : "bg-white/15 text-gray-300 border border-white/10"
+                                                "px-4 py-2 rounded-[8px] text-[12px] font-black uppercase tracking-[0.15em] leading-none shadow-md border animate-in fade-in zoom-in duration-500",
+                                                (user?.plan === 'business' || planDetails?.name === 'Business') ? "bg-orange-500 text-white border-orange-400 shadow-orange-500/30" :
+                                                    (user?.plan === 'pro' || planDetails?.name === 'Pro') ? "bg-yellow-400 text-black border-yellow-300 shadow-yellow-500/30" :
+                                                        (user?.plan === 'starter' || planDetails?.name === 'Starter') ? "bg-blue-500 text-white border-blue-400 shadow-blue-500/30" :
+                                                            "bg-white/15 text-gray-300 border-white/10 shadow-black/50"
                                             )}>
-                                                {planDetails.name} Grade
+                                                {user?.plan === 'business' ? 'Business' : user?.plan === 'pro' ? 'Pro' : user?.plan === 'starter' ? 'Starter' : 'Free'} Grade
                                             </span>
                                         </div>
                                     </div>
 
                                     {/* Logout Button - Scaled */}
                                     <button
-                                        onClick={logout}
-                                        className="hidden md:flex items-center justify-center w-14 h-14 rounded-full bg-red-500/[0.08] border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-90 group"
+                                        type="button"
+                                        onClick={(e) => {
+                                            console.log("👆 Logout button clicked");
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            logout();
+                                        }}
+                                        className="hidden md:flex items-center justify-center w-14 h-14 rounded-full bg-red-500/[0.08] border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 group relative z-[100] pointer-events-auto"
                                         title="Logout"
                                     >
                                         <LogOut size={22} className="group-hover:rotate-12 transition-transform" />

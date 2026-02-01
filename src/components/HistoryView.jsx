@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Trash2, ExternalLink, Sparkles, Zap } from 'lucide-react';
+import { Calendar, Trash2, ExternalLink, Sparkles, Zap, BarChart3 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { PreviewModal } from './PreviewModal';
 
@@ -54,12 +54,25 @@ export const HistoryView = ({ history, onDelete }) => {
                                 {item.platform}
                             </span>
                             {item.isScoutContent && (
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                                    <Sparkles size={10} /> AI 발견
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1 animate-pulse">
+                                    <Sparkles size={10} fill="currentColor" /> 👑 황금 키워드 (Hunter)
                                 </span>
                             )}
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${item.isRealDB
+                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                    : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                                }`}>
+                                {item.isRealDB ? '☁️ Cloud' : '💾 Local'}
+                            </span>
                             <span className="text-[10px] text-gray-500 font-bold ml-auto uppercase tracking-tighter">
-                                {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
+                                {item.createdAt ? new Date(item.createdAt).toLocaleString('ko-KR', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                }) : 'N/A'}
                             </span>
                         </div>
 
@@ -75,13 +88,20 @@ export const HistoryView = ({ history, onDelete }) => {
                             </p>
                         </div>
 
-                        <div className="mt-auto grid grid-cols-3 gap-2 pt-5 border-t border-white/5">
+                        <div className="mt-auto grid grid-cols-4 gap-2 pt-5 border-t border-white/5">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setActiveResult(item); navigate('/studio'); }}
                                 className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary transition-all group/btn"
                             >
                                 <Zap size={16} className="group-hover/btn:scale-110 transition-transform" />
                                 <span className="text-[10px] font-black uppercase tracking-tighter">Studio</span>
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setActiveResult(item); navigate('/analysis'); }}
+                                className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 transition-all group/btn"
+                            >
+                                <BarChart3 size={16} className="group-hover/btn:scale-110 transition-transform" />
+                                <span className="text-[10px] font-black uppercase tracking-tighter">Analysis</span>
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); setActiveResult(item); navigate('/production'); }}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock, User, Chrome, Github, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { X, Mail, Lock, User, Chrome, Github, Eye, EyeOff, CheckCircle2, Loader, Zap } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { cn } from '../lib/utils';
 
 export const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
     const [mode, setMode] = useState(initialMode); // 'login' or 'signup'
@@ -22,7 +23,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
     }, [email]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setError('');
         setIsLoading(true);
 
@@ -33,31 +34,51 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
             return;
         }
 
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError('올바른 이메일 형식을 입력해주세요 (예: user@example.com)');
+            setIsLoading(false);
+            return;
+        }
+
         if (mode === 'signup' && !name) {
             setError('이름을 입력해주세요.');
             setIsLoading(false);
             return;
         }
 
-        if (password.length < 6) {
-            setError('비밀번호는 최소 6자 이상이어야 합니다.');
-            setIsLoading(false);
-            return;
-        }
-
         try {
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
             if (mode === 'login') {
-                login(email, password);
+                const user = await login(email, password);
+                if (user) onClose();
             } else {
-                signup(email, password, name);
+                const result = await signup(email, password, name);
+                if (result && result.success) {
+                    onClose();
+                } else if (result && result.error) {
+                    setError(result.error.message || '회원가입에 실패했습니다.');
+                }
             }
+        } catch (err) {
+            console.error("Auth submit error:", err);
+            setError(err.message || '로그인/회원가입에 실패했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    const handleMasterLogin = async () => {
+        console.log("⚡ [Master Login] Attempting immediate access...");
+        setIsLoading(true);
+        setError('');
+        try {
+            await login('admin@master.com', 'admin1234');
+            console.log("✅ [Master Login] Success. Closing modal.");
             onClose();
         } catch (err) {
-            setError('로그인/회원가입에 실패했습니다.');
+            console.error("❌ [Master Login] Failed:", err);
+            setError('마스터 계정 접속에 실패했습니다. (SQL 세팅 확인 필요)');
         } finally {
             setIsLoading(false);
         }
@@ -69,7 +90,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                 await loginWithGoogle();
                 // Redirect happens, no need to manually close immediately but prevents flicker
                 onClose();
-            } catch (error) {
+            } catch {
                 setError('Google 로그인 연결에 실패했습니다.');
             }
         } else {
@@ -233,6 +254,28 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                             >
                                 <Github size={18} />
                                 <span className="text-sm">GitHub</span>
+                            </button>
+                        </div>
+
+                        {/* Quick Test Login (Development only) */}
+                        <div className="mt-4">
+                            <button
+                                type="button"
+                                onClick={handleMasterLogin}
+                                disabled={isLoading}
+                                className={cn(
+                                    "w-full py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2",
+                                    !isLoading && "hover:bg-red-500/20 active:scale-95 animate-pulse",
+                                    isLoading && "opacity-50 cursor-not-allowed"
+                                )}
+                            >
+                                {isLoading ? (
+                                    <Loader size={14} className="animate-spin" />
+                                ) : (
+                                    <Zap size={14} fill="currentColor" />
+                                )}
+                                <span>테스트용 마스터 계정으로 즉시 접속</span>
+                                {!isLoading && <span className="ml-1 opacity-50 px-1 bg-red-500/20 rounded">Dev Only</span>}
                             </button>
                         </div>
 

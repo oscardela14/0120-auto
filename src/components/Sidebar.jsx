@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldAlert, Home, Lightbulb, History, Settings, Zap, Menu, X, CreditCard, BookOpen, HelpCircle, MessageSquare, BarChart3, Film, Rocket, Users, FileText, Target, Heart, Sparkles, Activity } from 'lucide-react';
+import { ShieldAlert, Home, Lightbulb, History, Settings, Zap, Menu, X, CreditCard, BookOpen, HelpCircle, MessageSquare, BarChart3, Film, Rocket, Users, FileText, Target, Heart, Sparkles, Activity, Globe } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { cn } from '../lib/utils';
 import { AutonomousHunter } from './AutonomousHunter';
@@ -136,11 +136,12 @@ export const Sidebar = ({ onOpenLegal, collapsed, setCollapsed }) => {
                     {!collapsed && (
                         <div className="flex items-center gap-2 px-2 mb-3">
                             <div className="w-1 h-3 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Main</span>
+                            <span className="text-[18px] font-black text-gray-400 uppercase tracking-widest">대시보드</span>
                         </div>
                     )}
                     <div className="space-y-1">
                         <SidebarItem icon={Home} label="홈" path="/" onClick={handleNavigation} collapsed={collapsed} />
+                        <SidebarItem icon={Globe} label="GA4 Intelligence" path="/ga4" onClick={handleNavigation} collapsed={collapsed} />
                     </div>
                 </div>
 
@@ -149,7 +150,7 @@ export const Sidebar = ({ onOpenLegal, collapsed, setCollapsed }) => {
                     {!collapsed && (
                         <div className="flex items-center gap-2 px-2 mb-3">
                             <div className="w-1 h-3 rounded-full bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.5)]" />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Creative</span>
+                            <span className="text-[18px] font-black text-gray-400 uppercase tracking-widest">크리에이티브 랩</span>
                         </div>
                     )}
                     <div className="space-y-1">
@@ -163,39 +164,27 @@ export const Sidebar = ({ onOpenLegal, collapsed, setCollapsed }) => {
                     {!collapsed && (
                         <div className="flex items-center gap-2 px-2 mb-3">
                             <div className="w-1 h-3 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Analysis</span>
+                            <span className="text-[18px] font-black text-gray-400 uppercase tracking-widest">데이터 인텔리전스</span>
                         </div>
                     )}
                     <div className="space-y-1">
+                        <SidebarItem icon={Activity} label="AI 분석 엔진" path="/analysis" onClick={handleNavigation} collapsed={collapsed} />
                         <SidebarItem icon={BarChart3} label="수익 (Revenue)" path="/revenue" onClick={handleNavigation} collapsed={collapsed} />
                         <SidebarItem icon={Sparkles} label="TEST 실험실" path="/test" onClick={handleNavigation} collapsed={collapsed} />
                         <SidebarItem icon={Film} label="프로덕션 랩" path="/production" onClick={handleNavigation} collapsed={collapsed} />
                         <SidebarItem icon={Rocket} label="그로스 전략" path="/growth" onClick={handleNavigation} collapsed={collapsed} />
-                        <SidebarItem icon={Users} label="디지털 트윈" path="/twin" onClick={handleNavigation} collapsed={collapsed} />
+
                     </div>
                 </div>
 
-                {/* 3.5 Advanced Strategy Section (New) */}
-                <div className={cn("transition-all duration-300", !collapsed && "bg-white/5 rounded-2xl p-3 border border-white/5")}>
-                    {!collapsed && (
-                        <div className="flex items-center gap-2 px-2 mb-3">
-                            <div className="w-1 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Strategy</span>
-                        </div>
-                    )}
-                    <div className="space-y-1">
-                        <SidebarItem icon={ShieldAlert} label="여론 방어 (Guard)" path="/reputation" onClick={handleNavigation} collapsed={collapsed} />
-                        <SidebarItem icon={Target} label="경쟁사 정찰 (Recon)" path="/recon" onClick={handleNavigation} collapsed={collapsed} />
-                        <SidebarItem icon={Heart} label="팬 케어 (Fan Care)" path="/fancare" onClick={handleNavigation} collapsed={collapsed} />
-                    </div>
-                </div>
+
 
                 {/* 4. Management Section Panel */}
                 <div className={cn("transition-all duration-300", !collapsed && "bg-white/5 rounded-2xl p-3 border border-white/5")}>
                     {!collapsed && (
                         <div className="flex items-center gap-2 px-2 mb-3">
                             <div className="w-1 h-3 rounded-full bg-gray-500" />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Management</span>
+                            <span className="text-[18px] font-black text-gray-400 uppercase tracking-widest">시스템 관리</span>
                         </div>
                     )}
                     <div className="space-y-1">

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ShieldAlert, Users, Activity, Lock, Unlock,
-    Trash2, Search, Database, Server, Cpu,
-    AlertTriangle, Terminal, Eye, EyeOff, Crown
+    ShieldAlert, Database, Server, Cpu,
+    AlertTriangle, Terminal, Trash2, Search, Lock, Unlock
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { cn } from '../lib/utils';
@@ -15,11 +13,11 @@ const AdminDashboardPage = () => {
     const [systemHealth, setSystemHealth] = useState(98.4);
     const [activeUsers, setActiveUsers] = useState(Math.floor(Math.random() * 50) + 120);
     const [logs, setLogs] = useState([]);
-    const [isGodMode, setIsGodMode] = useState(true);
 
     // Derived Realistic Stats
     const totalGenerated = history.length;
-    const totalCreditsUsed = usage.total;
+
+    // Enhanced User List Simulation
 
     // Enhanced User List Simulation
     const [mockUsers, setMockUsers] = useState([

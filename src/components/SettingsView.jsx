@@ -4,7 +4,7 @@ import { User, Mail, Camera, RefreshCw, Save, LogOut, Upload, Shield, CreditCard
 import { useUser } from '../contexts/UserContext';
 
 export const SettingsView = ({ onNavigate }) => {
-    const { user, updateUser, logout, isAuthenticated, getCurrentPlanDetails } = useUser();
+    const { user, usage, updateUser, logout, isAuthenticated, planDetails } = useUser();
     const [name, setName] = useState('');
     const [avatarSeed, setAvatarSeed] = useState('');
     const [avatarUrl, setAvatarUrl] = useState(''); // For uploaded images
@@ -12,7 +12,6 @@ export const SettingsView = ({ onNavigate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef(null);
-    const planDetails = getCurrentPlanDetails();
 
     // Init state from user
     useEffect(() => {
@@ -251,7 +250,7 @@ export const SettingsView = ({ onNavigate }) => {
                         <h3 className="text-gray-400 text-sm mb-4">이번 달 사용량</h3>
                         <div className="flex justify-between items-end mb-2">
                             <span className="text-2xl font-bold text-white">
-                                {getCurrentPlanDetails().monthly_limit === -1 ? '무제한' : `${useUser().usage.current_month} / ${getCurrentPlanDetails().monthly_limit}`}
+                                {planDetails.monthly_limit === -1 ? '무제한' : `${usage.current_month} / ${planDetails.monthly_limit}`}
                             </span>
                             <span className="text-xs text-gray-500">건</span>
                         </div>
@@ -259,14 +258,14 @@ export const SettingsView = ({ onNavigate }) => {
                             <div
                                 className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
                                 style={{
-                                    width: getCurrentPlanDetails().monthly_limit === -1
+                                    width: planDetails.monthly_limit === -1
                                         ? '100%'
-                                        : `${Math.min(100, (useUser().usage.current_month / getCurrentPlanDetails().monthly_limit) * 100)}%`
+                                        : `${Math.min(100, (usage.current_month / planDetails.monthly_limit) * 100)}%`
                                 }}
                             ></div>
                         </div>
                         <p className="text-xs text-gray-500 mt-3">
-                            {getCurrentPlanDetails().monthly_limit === -1
+                            {planDetails.monthly_limit === -1
                                 ? '마음껏 생성하세요!'
                                 : '다음 초기화: 매월 1일'}
                         </p>

@@ -141,6 +141,12 @@ const AIBriefingBox = ({ user, activeResult, history }) => {
                 msg: `마스터님, 현재 시장 지표 분석 결과 ${activeResult?.topic || '특정 키워드'} 분야의 경쟁사 진입이 둔화되었습니다. 지금이 상위 노출을 독점할 최적의 타이밍입니다. SEO 마스터 보드를 가동하여 점유율 15% 이상 확대를 권장합니다.`,
                 icon: Brain
             };
+        } else if (persona === 'ga4_focus') {
+            return {
+                title: "Google Analytics 실시간 신호 감지",
+                msg: "GA4 데이터 분석 결과, 현재 테크 관련 검색 유입이 급격히 증가하고 있습니다. 기존 블로그 포스팅의 체류 시간이 4분을 초과했으니, 심화 버전의 '유튜브 쇼츠'를 연계하여 유입을 폭발시키세요.",
+                icon: Globe
+            };
         }
         return {
             title: "안녕하세요 마스터! 오늘의 수익 가이드입니다.",
@@ -344,6 +350,11 @@ export const GuideView = () => {
                             title="정밀 재무 리포트 추출 (5-Page High-End)"
                             description="총 자산 가치, 수익 공식, 성장 로드맵, 자산 원장, 그리고 '데이터 무결성 인증서'가 포함된 5페이지 분량의 전문가용 리포트를 PDF로 제공합니다. 금융권 제출이 가능한 수준의 완결성을 보장합니다."
                         />
+                        <Step
+                            number="7"
+                            title="Asset Equity Dashboard (자산 지분 평가)"
+                            description="[NEW] 단순 수익을 넘어, 채널의 '디지털 자산 가치'를 평가하는 하이퍼 레벨 대시보드입니다. 12개월 예측 지분 가치(Equity), 자산 보안 등급(Security), 성장 잠재력(Growth)을 종합 분석하여 귀하의 포트폴리오를 금융 자산처럼 관리합니다."
+                        />
                     </div>
                 </GuideSection>
 
@@ -383,6 +394,26 @@ export const GuideView = () => {
                             number="3"
                             title="Targeted Refinement (개별 튜닝)"
                             description="전체 내용을 바꿀 필요 없이, 원하는 변수(제목, 훅, 태그)만 선택하여 정밀 타격하듯 수정할 수 있습니다. 마음에 드는 부분은 유지하고 약점만 보완하는 스마트한 튜닝이 가능합니다."
+                        />
+                    </div>
+                </GuideSection>
+
+                <GuideSection icon={Globe} title="Neural Advanced Labs (퀀텀 실험실)">
+                    <div className="py-2">
+                        <Step
+                            number="1"
+                            title="Quantum Native (Localization)"
+                            description="[Cultural Patch] 단순 번역이 아닙니다. 타겟 국가의 최신 밈(Meme), 슬랭, 금기어, 화폐 단위까지 완벽하게 이식하는 '문화적 로컬라이제이션' 엔진입니다. 글로벌 진출 시 클릭 한 번으로 현지 네이티브 수준의 콘텐츠를 확보하세요."
+                        />
+                        <Step
+                            number="2"
+                            title="Google Analytics (GA4) Intelligence"
+                            description="[NEW] MCP 기술을 통해 내 웹사이트/블로그의 실제 유입 데이터를 실시간으로 읽어옵니다. 사용자 체류 시간, 유입 소스, 이탈률을 분석하여 AI가 다음 콘텐츠 주제를 자율적으로 결정합니다."
+                        />
+                        <Step
+                            number="3"
+                            title="Smart Widget (Interaction Logic)"
+                            description="[Engagement Loop] 시청자의 참여를 유도하는 인터랙티브 위젯(투표, 퀴즈, 계산기 등)의 로직을 주제에 맞춰 자동으로 설계합니다. 알고리즘 점수에 가장 큰 영향을 미치는 '시청 지속 시간'과 '상호작용' 지표를 극대화하는 비밀 무기입니다."
                         />
                     </div>
                 </GuideSection>

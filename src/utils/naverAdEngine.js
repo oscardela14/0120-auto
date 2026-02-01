@@ -30,10 +30,6 @@ export const getKeywordMetadata = async (keyword) => {
     try {
         // In a real production app, this would hit our backend which signs the request.
         // Calling directly for demonstration of the "Live Sync" attempt.
-        const timestamp = Date.now().toString();
-        const method = 'GET';
-        const uri = '/keywordstool';
-
         // We simulate the fetch here because the browser would block the actual request anyway.
         // But we show the logic that would be used.
         console.log(`[NaverAdEngine] Fetching real-time CPC/Volume for: ${keyword}`);
@@ -56,8 +52,8 @@ export const getKeywordMetadata = async (keyword) => {
             status: 'LIVE_NAVER_API_SYNCED'
         };
 
-    } catch (e) {
-        console.error("[NaverAdEngine] API call failed", e);
+    } catch {
+        console.error("[NaverAdEngine] API call failed");
         return simulateNaverData(keyword);
     }
 };

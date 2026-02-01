@@ -3,7 +3,7 @@
  * Omni-Ecosystem & Profit Bridging Engine
  */
 
-export const publishDirectToPlatform = async (platform, data) => {
+export const publishDirectToPlatform = async (platform) => {
     console.log(`[SocialAgent] Direct push to ${platform}...`);
     // Simulated API handshake with YouTube Data API, Meta Graph API, etc.
     return new Promise(resolve => {

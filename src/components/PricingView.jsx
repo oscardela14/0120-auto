@@ -94,8 +94,10 @@ const plans = [
     }
 ];
 
-const PlanCard = ({ plan, currentPlan, onUpgrade, index, billingCycle }) => {
-    const isCurrentPlan = currentPlan === plan.id;
+const PlanCard = ({ plan, user, usage, onUpgrade, index, billingCycle }) => {
+    // 요금제 등급(id)과 결제 주기(billing_cycle)가 모두 맞아야 '이용 중'으로 표시함
+    const userBillingCycle = usage?.billing_cycle || 'monthly';
+    const isCurrentPlan = user?.plan === plan.id && (plan.id === 'free' || userBillingCycle === billingCycle);
     const isPro = plan.id === 'pro';
 
     // KRW Display Logic
@@ -265,7 +267,7 @@ const PlanCard = ({ plan, currentPlan, onUpgrade, index, billingCycle }) => {
 };
 
 export const PricingView = ({ onOpenLegal }) => {
-    const { user, isAuthenticated, upgradePlan, addNotification } = useUser();
+    const { user, usage, isAuthenticated, upgradePlan, addNotification } = useUser();
     const [billingCycle, setBillingCycle] = useState('monthly');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -274,7 +276,9 @@ export const PricingView = ({ onOpenLegal }) => {
     const currentPlan = user?.plan || 'free';
 
     const handleUpgrade = (planId, isTrialMode = false) => {
-        if (planId === currentPlan) return;
+        const userBillingCycle = usage?.billing_cycle || 'monthly';
+        if (planId === currentPlan && userBillingCycle === billingCycle) return;
+
         if (!isAuthenticated) {
             setShowAuthModal(true);
             return;
@@ -282,7 +286,7 @@ export const PricingView = ({ onOpenLegal }) => {
 
         // 14일 무료 체험 모드일 경우: 결제 없이 바로 체험 시작
         if (isTrialMode) {
-            upgradePlan(planId, true); // isTrial = true
+            upgradePlan(planId, billingCycle); // isTrial = true
             addNotification(`🎉 ${planId.toUpperCase()} 플랜 14일 무료 체험이 시작되었습니다!`, "success");
             return;
         }
@@ -365,10 +369,11 @@ export const PricingView = ({ onOpenLegal }) => {
                     <PlanCard
                         key={plan.id}
                         plan={plan}
-                        currentPlan={currentPlan}
+                        user={user}
+                        usage={usage}
+                        billingCycle={billingCycle}
                         onUpgrade={handleUpgrade}
                         index={index}
-                        billingCycle={billingCycle}
                     />
                 ))}
             </div>
@@ -378,12 +383,12 @@ export const PricingView = ({ onOpenLegal }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-surface/20 border border-white/5 rounded-[32px] p-10 mb-10"
+                className="bg-surface/20 border border-white/5 rounded-2xl p-6 mb-8 max-w-5xl mx-auto"
             >
-                <h2 className="text-xl md:text-2xl font-black text-white mb-10 text-center tracking-tight">
+                <h2 className="text-lg md:text-xl font-black text-white mb-6 text-center tracking-tight">
                     모든 플랜에 포함된 기능
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {[
                         { icon: TrendingUp, text: '트렌드 분석' },
                         { icon: Calendar, text: '콘텐츠 캘린더' },
@@ -392,11 +397,11 @@ export const PricingView = ({ onOpenLegal }) => {
                         { icon: Shield, text: '보안 암호화' },
                         { icon: Headphones, text: '커뮤니티 지원' },
                     ].map((item, idx) => (
-                        <div key={idx} className="flex flex-col items-center text-center gap-4 group">
-                            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-300">
-                                <item.icon size={24} className="text-primary group-hover:scale-110 transition-transform" />
+                        <div key={idx} className="flex flex-col items-center text-center gap-2 group">
+                            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-300">
+                                <item.icon size={18} className="text-primary group-hover:scale-110 transition-transform" />
                             </div>
-                            <span className="text-gray-300 text-[13px] md:text-sm font-black uppercase tracking-tight group-hover:text-white transition-colors">{item.text}</span>
+                            <span className="text-gray-300 text-[11px] font-bold uppercase tracking-tight group-hover:text-white transition-colors">{item.text}</span>
                         </div>
                     ))}
                 </div>
@@ -452,22 +457,22 @@ export const PricingView = ({ onOpenLegal }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="mt-12 text-center bg-gradient-to-br from-primary/10 to-purple-500/10 border border-white/10 rounded-3xl p-8 relative overflow-hidden group"
+                className="mt-8 mx-auto max-w-2xl text-center bg-gradient-to-br from-primary/10 to-purple-500/10 border border-white/10 rounded-2xl p-6 relative overflow-hidden group"
             >
                 {/* Ambient glow in background */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/20 blur-[80px] rounded-full pointer-events-none"></div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-primary/20 blur-[60px] rounded-full pointer-events-none"></div>
 
-                <Award size={32} className="text-primary/80 mx-auto mb-4 group-hover:scale-110 transition-transform duration-500" />
-                <h2 className="text-xl md:text-2xl font-black text-white mb-3 tracking-tight">
+                <Award size={24} className="text-primary/80 mx-auto mb-3 group-hover:scale-110 transition-transform duration-500" />
+                <h2 className="text-lg md:text-xl font-black text-white mb-2 tracking-tight">
                     아직 고민 중이신가요?
                 </h2>
-                <p className="text-gray-400 text-sm mb-6 max-w-xl mx-auto leading-relaxed">
+                <p className="text-gray-400 text-xs mb-4 max-w-md mx-auto leading-relaxed">
                     무료 플랜으로 시작해서 ContentStudio AI의 강력한 기능을 직접 체험해보세요.<br className="hidden md:block" />
                     신용카드 등록 없이 <span className="text-white font-bold">1분 만에 바로 시작</span>할 수 있습니다.
                 </p>
                 <button
                     onClick={() => isAuthenticated ? handleUpgrade('starter') : setShowAuthModal(true)}
-                    className="bg-white text-black px-8 py-3 rounded-xl font-black text-sm hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all hover:scale-105 active:scale-95"
+                    className="bg-white text-black px-6 py-2.5 rounded-lg font-black text-xs hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all hover:scale-105 active:scale-95"
                 >
                     14일 무료 체험 시작하기 →
                 </button>

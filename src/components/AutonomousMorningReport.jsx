@@ -81,6 +81,7 @@ export const AutonomousMorningReport = ({ isOpen, onClose }) => {
                     ...result,
                     id: Date.now() + Math.random(),
                     isOneStop: true,
+                    isGoldenKeyword: true,
                     originPlatform: result.platform
                 }));
 

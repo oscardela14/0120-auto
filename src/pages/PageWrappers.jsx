@@ -9,7 +9,7 @@ import { SettingsView } from '../components/SettingsView';
 import { AnalyzerView } from '../components/AnalyzerView';
 import { ProductionLabView } from '../components/ProductionLabView';
 import { GrowthStrategyView } from '../components/GrowthStrategyView';
-import { TwinView } from '../components/TwinView';
+
 
 // New Features
 import ReputationGuardView from '../components/ReputationGuardView';
@@ -27,7 +27,7 @@ export const StudioPage = () => {
 export const AnalyzerPage = () => <AnalyzerView />;
 export const ProductionLabPage = () => <ProductionLabView />;
 export const GrowthPage = () => <GrowthStrategyView />;
-export const TwinPage = () => <TwinView />;
+
 
 // New Features Wrappers
 export const ReputationPage = () => <ReputationGuardView />;

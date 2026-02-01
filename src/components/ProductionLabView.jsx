@@ -70,25 +70,83 @@ export const ProductionLabView = () => {
             `Stylized 3D render representing ${activeResult?.topic || 'content'}, trending on artstation, vibrant colors`,
             `Hyper-realistic close-up of ${activeResult?.topic || 'content'}, soft bokeh background, macro lens`
         ],
-        visuals: (activeResult?.variants?.[activeResult?.activeVariant || 'A']?.sections || activeResult?.sections || []).map(s => ({
-            text: s.text || s.content || "장면 설명이 없습니다.",
-            visualUrl: s.visualUrl || `https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80`
-        })),
+        visuals: (activeResult?.drafts || activeResult?.script || activeResult?.sections ||
+            activeResult?.contents?.['YouTube Shorts']?.drafts ||
+            activeResult?.contents?.['Instagram Reels']?.drafts || []).map(s => ({
+                text: s.text || s.content || "장면 설명이 없습니다.",
+                visualPrompt: s.visual || s.title || (s.text ? s.text.substring(0, 50) : "aesthetic shot"),
+                visualUrl: s.visualUrl || `https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80`
+            })),
         voiceId: recommendedVoice.name.toLowerCase(),
         estimatedDuration: activeResult?.duration || '60s'
     };
 
     if (data.visuals.length === 0) {
         data.visuals = [
-            { text: "인트로: 시선 집중 주제 공개", visualUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80" },
-            { text: "본론: 핵심 비법 3가지 소개", visualUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80" },
-            { text: "아웃트로: 콜 투 액션 (팔로우)", visualUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80" }
+            { text: "인트로: 시선 집중 주제 공개", visualPrompt: "Exciting opening hook, eye-catching graphics", visualUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80" },
+            { text: "본론: 핵심 비법 3가지 소개", visualPrompt: "Comparison chart, informative infographics, professional setting", visualUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80" },
+            { text: "아웃트로: 콜 투 액션 (팔로우)", visualPrompt: "Subscriber button animation, smiling for camera, friendly goodbye", visualUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80" }
         ];
     }
 
     const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+    const [isGeneratingImages, setIsGeneratingImages] = useState(false);
     const [isPlayingVoice, setIsPlayingVoice] = useState(false);
     const [selectedVoice, setSelectedVoice] = useState(data.voiceId);
+    const [localVisuals, setLocalVisuals] = useState(null);
+
+    useEffect(() => {
+        // Reset local visuals only when the specific content ID changes
+        // Using a single stable key to avoid hook size issues during HMR
+        setLocalVisuals(null);
+    }, [activeResult?.id]);
+
+    const handleGenerateImages = () => {
+        if (!activeResult) return;
+        setIsGeneratingImages(true);
+        addNotification("나노바나나 엔진이 고해상도 시각 에셋을 추출 중입니다...", "info");
+
+        setTimeout(() => {
+            const topic = activeResult.topic || "content";
+            const generated = (data.visuals || []).map((v, idx) => {
+                const uniqueSeed = Math.floor(Math.random() * 1000000) + idx + Date.now();
+
+                // CRITICAL: Ensure prompts are clean but keep Korean
+                // Using image.pollinations.ai/prompt/ which is the most stable direct image endpoint
+                const cleanTopic = topic.substring(0, 50).replace(/[^\w\s가-힣]/g, '');
+                const sceneDetail = (v.visualPrompt || v.text || "cinematic").substring(0, 100).replace(/[^\w\s가-힣]/g, '');
+                const finalPrompt = encodeURIComponent(`${cleanTopic} ${sceneDetail} cinematic 8k`);
+
+                return {
+                    ...v,
+                    visualUrl: `https://image.pollinations.ai/prompt/${finalPrompt}?width=720&height=1280&seed=${uniqueSeed}&nologo=true&model=flux`
+                };
+            });
+            setLocalVisuals(generated);
+            setIsGeneratingImages(false);
+            addNotification("나노바나나 엔진이 시각 에셋 동기화를 완료했습니다.", "success");
+        }, 1500);
+    };
+
+    const handleRefreshScene = (idx) => {
+        if (!localVisuals) return;
+        const newVisuals = [...localVisuals];
+        const v = newVisuals[idx];
+        const uniqueSeed = Math.floor(Math.random() * 1000000) + Date.now();
+        const topic = activeResult.topic || "content";
+        const cleanTopic = topic.substring(0, 50).replace(/[^\w\s가-힣]/g, '');
+        const sceneDetail = (v.visualPrompt || v.text || "cinematic").substring(0, 100).replace(/[^\w\s가-힣]/g, '');
+        const finalPrompt = encodeURIComponent(`${cleanTopic} ${sceneDetail} realistic 8k`);
+
+        newVisuals[idx] = {
+            ...v,
+            visualUrl: `https://image.pollinations.ai/prompt/${finalPrompt}?width=720&height=1280&seed=${uniqueSeed}&nologo=true&model=flux&t=${uniqueSeed}`
+        };
+        setLocalVisuals(newVisuals);
+        addNotification(`장면 ${idx + 1} 비주얼을 재구성합니다.`, "info");
+    };
+
+    const displayVisuals = localVisuals || data.visuals;
 
     const handleGenerateVideo = () => {
         setIsGeneratingVideo(true);
@@ -168,8 +226,13 @@ export const ProductionLabView = () => {
                                 </div>
                             ))}
                         </div>
-                        <button className="w-full py-3 bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 text-xs font-black rounded-xl border border-pink-500/20 transition-all flex items-center justify-center gap-2">
-                            <Wand2 size={14} /> 모든 리소스로 이미지 생성 요청
+                        <button
+                            onClick={handleGenerateImages}
+                            disabled={isGeneratingImages}
+                            className={`w-full py-3 bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 text-xs font-black rounded-xl border border-pink-500/20 transition-all flex items-center justify-center gap-2 ${isGeneratingImages ? 'animate-pulse' : ''}`}
+                        >
+                            {isGeneratingImages ? <RefreshCcw className="animate-spin" size={14} /> : <Wand2 size={14} />}
+                            {isGeneratingImages ? '이미지 생성 중...' : '모든 리소스로 이미지 생성 요청'}
                         </button>
                     </div>
                 </MultimediaCard>
@@ -208,7 +271,7 @@ export const ProductionLabView = () => {
 
                                     if ('speechSynthesis' in window) {
                                         window.speechSynthesis.cancel(); // Stop any current speech
-                                        const text = data.visuals[0]?.text || "이것은 AI 뉴럴 보이스 미리보기 테스트입니다.";
+                                        const text = displayVisuals[0]?.text || "이것은 AI 뉴럴 보이스 미리보기 테스트입니다.";
                                         const utterance = new SpeechSynthesisUtterance(text);
                                         const spec = VOICE_SPECS[selectedVoice] || VOICE_SPECS.alloy;
                                         utterance.lang = 'ko-KR';
@@ -238,7 +301,7 @@ export const ProductionLabView = () => {
                         <div className="bg-black/20 rounded-2xl p-4 mb-6 border border-white/5">
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Audio Visualization</span>
-                                <span className="text-[10px] font-mono text-orange-400">00:{data.estimatedDuration}</span>
+                                <span className="text-[10px] font-mono text-orange-400">00:{activeResult?.duration || '60'}s</span>
                             </div>
                             <div className="flex items-center gap-1.5 h-12">
                                 {[...Array(24)].map((_, i) => (
@@ -282,17 +345,53 @@ export const ProductionLabView = () => {
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {(data.visuals || []).slice(0, 4).map((scene, idx) => (
+                            {(displayVisuals || []).slice(0, 4).map((scene, idx) => (
                                 <motion.div
                                     key={idx}
                                     whileHover={{ y: -8 }}
                                     className="bg-black/30 rounded-[28px] overflow-hidden border border-white/5 group/scene shadow-2xl"
                                 >
-                                    <div className="aspect-[9/16] md:aspect-video lg:aspect-[9/16] relative overflow-hidden">
-                                        <img src={scene.visualUrl} alt={`Scene ${idx}`} className="w-full h-full object-cover group-hover/scene:scale-110 transition-transform duration-[2000ms] ease-out" />
+                                    <div className="aspect-[9/16] md:aspect-[9/16] relative overflow-hidden bg-white/5">
+                                        {/* Loading Shimmer */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+
+                                        <img
+                                            src={scene.visualUrl}
+                                            alt={`Scene ${idx}`}
+                                            onLoad={(e) => {
+                                                e.target.style.opacity = 1;
+                                            }}
+                                            onError={(e) => {
+                                                if (e.target.dataset.error) return;
+                                                e.target.dataset.error = "true";
+
+                                                const fallbackIds = [
+                                                    '1618005182384-a83a8bd57fbe',
+                                                    '1518770660279-5d5c943f053a',
+                                                    '1550684848-fac1c5b4e853',
+                                                    '1451187580459-43490279c0fa'
+                                                ];
+                                                const photoId = fallbackIds[idx % fallbackIds.length];
+                                                e.target.src = `https://images.unsplash.com/photo-${photoId}?q=80&w=600&auto=format`;
+                                                e.target.style.opacity = 1;
+                                            }}
+                                            style={{ opacity: 0 }}
+                                            className="w-full h-full object-cover group-hover/scene:scale-110 transition-all duration-[2000ms] ease-out"
+                                        />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
                                         <div className="absolute top-4 left-4 flex gap-2">
                                             <span className="bg-blue-600/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full shadow-lg border border-white/10">0:{idx * 15}s</span>
+                                        </div>
+                                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover/scene:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRefreshScene(idx);
+                                                }}
+                                                className="p-2 bg-black/60 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-primary transition-all"
+                                            >
+                                                <RefreshCcw size={12} />
+                                            </button>
                                         </div>
                                         <div className="absolute bottom-4 left-4 right-4">
                                             <div className="px-3 py-2 bg-black/60 backdrop-blur-md rounded-xl border border-white/10">

@@ -17,7 +17,7 @@ export const matchVisualsForScript = async (script) => {
     if (!script) return [];
 
     // Simulate AI matching logic
-    return script.map((scene, index) => {
+    return script.map((scene) => {
         // Deterministic but "AI-like" matching based on text
         const imageIndex = scene.text.length % STOCK_IMAGES.length;
         return {

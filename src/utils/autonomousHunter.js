@@ -71,7 +71,7 @@ export const startAutonomousHunt = (onAlert) => {
     return () => clearInterval(timer);
 };
 
-export const getEnsembleInsight = (personaIds, topic) => {
+export const getEnsembleInsight = (personaIds) => {
     const traits = {
         baek: "손님들이 이거 한 입 먹으면 바로 '와~' 소리 나게 만들어야 해요. 복잡한 거 말고 딱 핵심만!",
         jobs: "Design is not just what it looks like. It is how it works. This topic needs to be simple, yet profound.",

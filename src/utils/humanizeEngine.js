@@ -65,7 +65,7 @@ export const humanizeText = (text) => {
 
     // Phase 3: Sentence-end variation & Emojis
     const sentences = humanized.split(/([.!?])/);
-    humanized = sentences.map((s, i) => {
+    humanized = sentences.map((s) => {
         if (Math.random() > 0.3 && s.trim().length > 3) {
             return s + " " + EMOTICONS[Math.floor(Math.random() * EMOTICONS.length)];
         }
@@ -80,6 +80,6 @@ export const humanizeText = (text) => {
     return humanized.trim();
 };
 
-export const cleanAndInjectMetadata = async (imageBlob, topic) => {
+export const cleanAndInjectMetadata = async (imageBlob) => {
     return { blob: imageBlob, metadata: { Software: "iOS 17.5.1 Humanized" }, isCleaned: true };
 };

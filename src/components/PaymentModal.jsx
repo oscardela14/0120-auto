@@ -40,6 +40,7 @@ export const PaymentModal = ({ isOpen, onClose, selectedPlan, billingCycle = 'mo
             const buyerEmail = isValidEmail(user?.email) ? user.email : 'test@test.com';
 
             const result = await requestPayment(
+                selectedPlan,
                 `${planDetails.name} Plan (${billingText})`,
                 finalPrice,
                 { name: user?.name, email: buyerEmail }
@@ -88,12 +89,16 @@ export const PaymentModal = ({ isOpen, onClose, selectedPlan, billingCycle = 'mo
                 // 📳 2. Haptic Feedback (Success Pattern)
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
 
+                // ⚡ [IMMEDIATE UPDATE] 결제 성공 즉시 상태 반영 (기다리지 않음)
+                console.log(`✅ [Payment Success] Upgrading user ${user?.id} to plan: ${selectedPlan}`);
+                upgradePlan(selectedPlan, billingCycle);
+
+                addNotification(`💎 ${planDetails.name} 플랜으로 업그레이드 요청되었습니다!`, 'success');
+
                 setPaymentSuccess(true);
 
-                // ⏱️ 3. Delay closing for 2.5 seconds (Original Timing)
+                // ⏱️ 3. Delay ONLY the closing for UX (Show animation)
                 setTimeout(() => {
-                    upgradePlan(selectedPlan);
-                    addNotification(`💎 ${planDetails.name} 플랜으로 업그레이드 완료!`, 'success');
                     onClose();
                 }, 2500);
             } else {

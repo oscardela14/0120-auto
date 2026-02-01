@@ -25,11 +25,12 @@ export const remixStyle = async (text, style) => {
             return `😨 당신이 절대 알면 안 되는... ${text.replace(/\./g, '... 죽음의 그림자가...')} 😨`;
         case 'professional':
             return `해당 주제에 대한 정밀 분석 결과입니다: ${text.replace(/!/g, '.')} 본 구성은 데이터에 기반하고 있습니다.`;
-        case 'authentic': // New Strategy: Experience-based Narrative Mimicry for Naver SmartBlock
+        case 'authentic': { // New Strategy: Experience-based Narrative Mimicry for Naver SmartBlock
             const base = text.replace(/알아보겠습니다/g, '직접 경험해봤습니다')
                 .replace(/좋습니다/g, '써보니 진짜 물건이더라고요')
                 .replace(/방법입니다/g, '이렇게 하니까 바로 해결됐어요');
             return humanizeText(base);
+        }
         default:
             return text;
     }

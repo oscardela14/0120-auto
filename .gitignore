@@ -11,3 +11,9 @@ dist-ssr
 build
 .antigravity
 *.log
+*.cjs
+*.txt
+debug_*
+error_log*
+lint_results*
+tag_report*

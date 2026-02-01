@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Radar, Zap, ArrowRight, X, Sparkles, TrendingUp, Activity } from 'lucide-react';
+import { Zap, X, Activity } from 'lucide-react';
 import { startAutonomousHunt } from '../utils/autonomousHunter';
 
 export const AutonomousHunter = ({ onGenerate, collapsed }) => {

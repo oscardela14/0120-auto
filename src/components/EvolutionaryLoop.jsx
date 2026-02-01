@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dna, Zap, TrendingUp, AlertTriangle, Target, Crown, RefreshCw, X, Sparkles, Sword } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { callCerebras } from '../lib/cerebras';
 
 export const EvolutionaryLoop = ({ isOpen, onClose, initialTopic = "미래의 AI 수익화", onApply }) => {
     const [stage, setStage] = useState('idle'); // idle, mutating, competing, evolving, complete
@@ -25,31 +26,140 @@ export const EvolutionaryLoop = ({ isOpen, onClose, initialTopic = "미래의 AI
         }
     }, [isOpen, initialTopic]);
 
-    // Mock Mutation Engine
-    const mutateVariants = () => {
+    // AI-Powered Mutation Engine
+    const mutateVariants = async () => {
         setStage('mutating');
         addLog("🧬 진화 알고리즘 초기화... (Evolutionary Algorithm Init)");
+        addLog("🧠 Cerebras AI가 5가지 변종 DNA를 생성 중입니다...");
 
-        setTimeout(() => {
-            const newVariants = Array.from({ length: 5 }).map((_, i) => ({
-                id: i,
-                title: [
-                    `${topic} : 진짜 수익화의 비밀`,
-                    `아직도 ${topic} 모르시나요? (충격)`,
-                    `당장 따라해야 할 ${topic} BEST 3`,
-                    `${topic} 하나로 월 300버는 법`,
-                    `초보자도 가능한 ${topic} 가이드`
-                ][i],
-                style: ["Aggressive", "Clickbait", "Professional", "Emotional", "Data-Driven"][i],
-                thumbnailColor: ["from-red-500", "from-blue-500", "from-purple-500", "from-yellow-500", "from-emerald-500"][i],
-                vitality: 100, // Health point for survival
-                score: 0,
-                status: 'alive'
-            }));
-            setVariants(newVariants);
-            addLog("🦠 5개의 변종 콘텐츠 생성 완료 (5 Variants Spwaned)");
+        try {
+            const prompt = `
+            [EVOLUTIONARY CONTENT GENERATOR]
+            Topic: "${topic}"
+
+            Generate 5 distinct viral titles for this topic, each strictly following a specific style DNA:
+            
+            [CRITICAL RULE]
+            - MUST WRITE IN **KOREAN (HANGEUL)** ONLY.
+            - DO NOT Use English, Japanese, or Chinese characters in the titles.
+            - Use natural, native Korean marketing nuances.
+            - **IMPORTANT**: The texts in quotes below are just EXAMPLES of the tone. **DO NOT COPY THEM**. Create NEW, UNIQUE, and CREATIVE titles that match the style description.
+            - **AVOID REPETITION**: Do not use the same formula across variants. Use metaphors, questions, and strong verbs.
+
+            1. Aggressive (Provocative/Controversial)
+               - Style: Challenge the user, reveal a secret, or warn them.
+               - Tone: "Shocking truth", "Don't be fooled", "Stop doing this"
+               - Instruction: Attack a common misconception about the topic.
+
+            2. Clickbait (Extreme Curiosity Gap)
+               - Style: Withhold key information to make them click.
+               - Tone: "Only 1% know this", "You won't believe", "The secret method"
+               - Instruction: Use a specific number or a "counter-intuitive" fact.
+
+            3. Professional (Authority/Trustworthy)
+               - Style: Expert analysis, proven methods, definitive guides.
+               - Tone: "Complete Guide", "Core Analysis", "Master Class", "Proven Strategy"
+               - Instruction: Focus on "system", "logic", or "blueprint".
+
+            4. Emotional (Empathy/Touching/Fear)
+               - Style: Trigger deep emotions, nostalgia, or fear of missing out.
+               - Tone: "Heart-pounding", "Tears won't stop", "Regret later"
+               - Instruction: Focus on the user's pain point or dream.
+
+            5. Data-Driven (Numbers/Analytics/Evidence)
+               - Style: Use specific numbers, percentages, and results to prove value.
+               - Tone: "300% Increase", "Zero to Hero", "Proven by Statistics"
+               - Instruction: Use specific odd numbers (e.g., 523%, 7 steps) for credibility.
+
+            OUTPUT JSON FORMAT ONLY:
+            {
+                "variants": [
+                    { "style": "Aggressive", "title": "..." },
+                    { "style": "Clickbait", "title": "..." },
+                    { "style": "Professional", "title": "..." },
+                    { "style": "Emotional", "title": "..." },
+                    { "style": "Data-Driven", "title": "..." }
+                ]
+            }
+            `;
+
+            const result = await callCerebras(prompt);
+
+            if (result && result.variants) {
+                const newVariants = result.variants.map((v, i) => ({
+                    id: i,
+                    title: v.title,
+                    style: v.style,
+                    thumbnailColor: ["from-red-500", "from-blue-500", "from-purple-500", "from-yellow-500", "from-emerald-500"][i] || "from-gray-500",
+                    vitality: 100,
+                    score: 0,
+                    status: 'alive'
+                }));
+
+                setVariants(newVariants);
+                addLog("🦠 5개의 고유 변종 콘텐츠 생성 완료 (5 Unique Variants Spawned)");
+                setStage('competing');
+            } else {
+                throw new Error("AI Generation Failed");
+            }
+
+        } catch (e) {
+            console.error("Mutation Failed", e);
+            addLog("⚠️ AI 생성 실패, 백업 알고리즘 가동...");
+
+            // Enhanced Dynamic Fallback Logic
+            const getDynamicTitle = (style, t) => {
+                const templates = {
+                    "Aggressive": [
+                        `${t}의 충격적 배신: 당신만 몰랐던 진실`,
+                        `${t}, 절대 시작하지 마세요 (ft. 망하는 이유)`,
+                        `아직도 ${t} 믿으세요? 전문가의 폭로`,
+                        `${t} 업계가 숨기고 싶어하는 3가지 거짓말`
+                    ],
+                    "Clickbait": [
+                        `${t} 하나로 인생 역전? 99%가 모르는 비밀`,
+                        `이것만 알면 ${t} 종결! 소름돋는 방법`,
+                        `지금 10분만 투자하면 ${t} 마스터 가능?`,
+                        `당신의 ${t}가 실패했던 진짜 이유 (충격)`
+                    ],
+                    "Professional": [
+                        `${t} 완벽 가이드: A to Z 심층 분석`,
+                        `2024년 ${t} 트렌드 및 전망 보고서`,
+                        `전문가가 사용하는 ${t} 핵심 전략 5선`,
+                        `${t} 성공을 위한 로직과 프로세스 설계`
+                    ],
+                    "Emotional": [
+                        `${t}, 포기하고 싶을 때 꼭 보세요`,
+                        `나를 바꾼 ${t} 한마디... 눈물주의`,
+                        `${t} 때문에 힘들었던 지난 날, 이제는 안녕`,
+                        `당신의 ${t}를 진심으로 응원합니다`
+                    ],
+                    "Data-Driven": [
+                        `${t}로 수익 300% 달성한 구체적 사례`,
+                        `${t}: 데이터로 증명된 7가지 성공 법칙`,
+                        `0원으로 시작해 ${t} 정복하는 통계적 방법`,
+                        `${t} 효율 2배 높이는 검증된 테크닉`
+                    ]
+                };
+                const list = templates[style] || templates["Professional"];
+                return list[Math.floor(Math.random() * list.length)];
+            };
+
+            const fallbackVariants = Array.from({ length: 5 }).map((_, i) => {
+                const style = ["Aggressive", "Clickbait", "Professional", "Emotional", "Data-Driven"][i];
+                return {
+                    id: i,
+                    title: getDynamicTitle(style, topic),
+                    style: style,
+                    thumbnailColor: ["from-red-500", "from-blue-500", "from-purple-500", "from-yellow-500", "from-emerald-500"][i],
+                    vitality: 100,
+                    score: 0,
+                    status: 'alive'
+                };
+            });
+            setVariants(fallbackVariants);
             setStage('competing');
-        }, 1500);
+        }
     };
 
     // Simulation Loop

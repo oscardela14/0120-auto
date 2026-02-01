@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Zap, PenTool, Activity, Sparkles, Filter, RefreshCcw, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, Zap, Activity, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { fetchRealtimeTrends, getTrendUpdateInfo, getRandomTrends } from '../utils/realtimeTrends';
@@ -8,10 +8,12 @@ import { generateContent } from '../utils/contentGenerator';
 import { ResultView } from '../components/ResultView';
 import { cn } from '../lib/utils';
 
+import { TrendService } from '../services/TrendService';
+import { fetchGA4RealtimeStats } from '../utils/ga4Engine';
+
 const TrendsPage = () => {
     const navigate = useNavigate();
     const {
-        user,
         isAuthenticated,
         addToHistory,
         canGenerateContent,
@@ -20,7 +22,7 @@ const TrendsPage = () => {
         setActivePlatform
     } = useUser();
 
-    // Mapping for Categories (Sync with activePlatform)
+    // Mapping for Categories
     const TREND_FILTER_MAP = {
         'MASTER': 'ALL',
         'YOUTUBE': '유튜브',
@@ -33,119 +35,70 @@ const TrendsPage = () => {
 
     const [trends, setTrends] = useState([]);
     const [isLoadingTrends, setIsLoadingTrends] = useState(true);
-    const [trendInfo, setTrendInfo] = useState(getTrendUpdateInfo());
+    const [trendInfo, setTrendInfo] = useState(TrendService.getUpdateStatus());
     const [generatedResult, setGeneratedResult] = useState(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [loadingKeywords, setLoadingKeywords] = useState(new Set());
     const [approvedKeywords, setApprovedKeywords] = useState(new Set());
+    const [gaStats, setGaStats] = useState(null);
 
+    // 1. 초기 데이터 로드 (서비스 호출)
     useEffect(() => {
         const loadTrends = async () => {
             setIsLoadingTrends(true);
-            try {
-                const data = await fetchRealtimeTrends();
-                setTrends(data);
-            } catch (e) {
-                console.error("Failed to load trends", e);
-                setTrends(getRandomTrends(20));
-            } finally {
-                setIsLoadingTrends(false);
-            }
+            const data = await TrendService.getLiveTrends();
+            setTrends(data);
+            setIsLoadingTrends(false);
+        };
+        const loadGA4 = async () => {
+            const data = await fetchGA4RealtimeStats();
+            if (data.success) setGaStats(data);
         };
         loadTrends();
+        loadGA4();
     }, []);
 
+    // 2. 실시간 상태 주기적 업데이트
     useEffect(() => {
         const timer = setInterval(() => {
-            setTrendInfo(getTrendUpdateInfo());
+            setTrendInfo(TrendService.getUpdateStatus());
         }, 1000);
         return () => clearInterval(timer);
     }, []);
 
-    const handleAutoDraftAndReflect = async (topic, platform = 'YouTube Shorts') => {
-        if (!isAuthenticated) {
-            addNotification("로그인이 필요한 기능입니다.", "info");
-            return;
-        }
-        if (!canGenerateContent()) {
-            addNotification("사용량을 모두 소모하셨습니다.", "error");
-            return;
-        }
+    // 3. AI 전략 초안 생성 (비즈니스 로직은 서비스가 처리)
+    const handleAutoDraftAndReflect = async (topic, platform) => {
+        if (!isAuthenticated) return addNotification("로그인이 필요한 기능입니다.", "info");
+        if (!canGenerateContent()) return addNotification("사용량을 모두 소모하셨습니다.", "error");
 
         setIsGenerating(true);
         try {
-            // Convert '인스타' -> 'Instagram Reels', '네이버 블로그' -> 'Naver Blog' for better AI context
-            let targetPlatform = platform;
-            if (platform === '인스타') targetPlatform = 'Instagram Reels';
-            if (platform === '네이버 블로그') targetPlatform = 'Naver Blog';
-            if (platform === '스레드') targetPlatform = 'Threads';
-            if (platform === '유튜브') targetPlatform = 'YouTube Shorts';
-
-            const aiResult = await generateContent(targetPlatform, topic, 'witty');
-            const finalResult = { ...aiResult, topic, platform: targetPlatform };
-            await addToHistory(finalResult);
+            const finalResult = await TrendService.generateAndSaveDraft(topic, platform, addToHistory);
             setGeneratedResult(finalResult);
             addNotification(`[${platform}] 전략 초안이 즉시 반영되었습니다.`, "success");
         } catch (error) {
-            console.error(error);
             addNotification("초안 생성 중 오류가 발생했습니다.", "error");
         } finally {
             setIsGenerating(false);
         }
     };
 
-    // [New Feature] One-Stop Publishing for TopTrends (Synced with TopicPage)
+    // 4. 원스톱 일괄 발행 (비즈니스 로직은 서비스가 처리)
     const handleOneStopPublish = async (topic, e) => {
         if (e) e.stopPropagation();
-
-        if (approvedKeywords.has(topic)) {
-            addNotification("이미 승인된 항목입니다. 보관함을 확인해주세요.", "info");
-            return;
-        }
-
+        if (approvedKeywords.has(topic)) return addNotification("이미 승인된 항목입니다.", "info");
         if (!isAuthenticated) return addNotification("로그인이 필요합니다.", "info");
         if (!canGenerateContent()) return addNotification("크레딧이 부족합니다.", "error");
 
-        setLoadingKeywords(prev => {
-            const next = new Set(prev);
-            next.add(topic);
-            return next;
-        });
-
-        addNotification(`👑 '${topic}' 최종 승인 확인! 4대 플랫폼 동시 발행 프로세스를 가동합니다...`, "info");
-
-        const platforms = ['YouTube Shorts', 'Instagram Reels', 'Naver Blog', 'Threads'];
-        let successCount = 0;
+        setLoadingKeywords(prev => new Set(prev).add(topic));
+        addNotification(`👑 '${topic}' 최종 승인... 4대 플랫폼 동시 프로세스 가동!`, "info");
 
         try {
-            // Parallel Processing
-            const promises = platforms.map(platform => generateContent(platform, topic, 'witty'));
-            const results = await Promise.all(promises);
+            const result = await TrendService.processOneStopPublish(topic, addToHistory);
 
-            const historyPromises = results
-                .filter(result => result !== null)
-                .map(result => addToHistory({
-                    ...result,
-                    id: Date.now() + Math.random(),
-                    isOneStop: true,
-                    originPlatform: result.platform
-                }));
-
-            await Promise.all(historyPromises);
-            successCount = results.filter(r => r !== null).length;
-
-            if (successCount > 0) {
-                addNotification(`✅ [${topic}] 관련 ${successCount}개 채널 콘텐츠가 모두 생성되어 보관함에 전송되었습니다.`, "success");
-                setApprovedKeywords(prev => {
-                    const next = new Set(prev);
-                    next.add(topic);
-                    return next;
-                });
-            } else {
-                addNotification("일괄 생성에 실패했습니다.", "error");
-            }
+            addNotification(`✅ [${topic}] 관련 ${result.successCount}개 채널 동시 전송 완료.`, "success");
+            setApprovedKeywords(prev => new Set(prev).add(topic));
         } catch (error) {
-            console.error("OneStop Error", error);
             addNotification("승인 처리 중 오류가 발생했습니다.", "error");
         } finally {
             setLoadingKeywords(prev => {
@@ -208,6 +161,15 @@ const TrendsPage = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
+                        {/* GA4 Traffic Correlation Badge */}
+                        <div className="flex items-center gap-3 px-5 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 mr-4">
+                            <Activity size={14} className="text-indigo-400" />
+                            <div className="flex flex-col text-left">
+                                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-tighter leading-none">Traffic Correlation</span>
+                                <span className="text-xs font-black text-white">{gaStats?.activeUsers || '...'} Active</span>
+                            </div>
+                        </div>
+
                         {categories.map(cat => (
                             <button
                                 key={cat.id}

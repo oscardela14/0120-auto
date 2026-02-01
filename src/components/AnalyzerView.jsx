@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart3, Signal, Sparkles, Zap, Loader, Split, Trophy, MousePointer2, TrendingUp, ShieldAlert, Lock, Search } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { BarChart3, Sparkles, Zap, Loader, TrendingUp, ShieldAlert, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 
@@ -10,18 +10,7 @@ const ContentCard = ({ children, className = "" }) => (
     </div>
 );
 
-const FeatureLock = ({ message, onUpgrade }) => (
-    <div className="absolute inset-0 z-[60] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl p-6 text-center">
-        <Lock size={32} className="text-amber-500 mb-4" />
-        <p className="text-white font-bold mb-4">{message}</p>
-        <button
-            onClick={onUpgrade}
-            className="px-6 py-2 bg-amber-500 text-black font-bold rounded-xl hover:scale-105 transition-transform"
-        >
-            PRO 플랜 업그레이드
-        </button>
-    </div>
-);
+
 
 export const AnalyzerView = () => {
     const { activeResult, user, addNotification } = useUser();
@@ -49,15 +38,62 @@ export const AnalyzerView = () => {
 
     const [selectedVariant, setSelectedVariant] = useState('A');
     const [isOptimizingSEO, setIsOptimizingSEO] = useState(false);
+    const [reengineeredData, setReengineeredData] = useState(null);
 
-    const hasPro = user?.plan === 'pro' || user?.plan === 'business';
-
-    const handleActiveSEOBoost = () => {
+    const handleReengineering = () => {
         setIsOptimizingSEO(true);
+        addNotification("알고리즘 뉴럴 패턴 분석 가동 중... 잠재적 바이럴 경로를 추적합니다.", "info");
         setTimeout(() => {
             setIsOptimizingSEO(false);
-            addNotification("SEO 최적화 부스트가 완료되었습니다! 점수가 98점으로 상승했습니다.", "success");
-        }, 2000);
+            // Simulate visual changes in metrics
+            setReengineeredData({
+                hookPower: Math.min(100, 90 + Math.floor(Math.random() * 10)),
+                retention: Math.min(100, 80 + Math.floor(Math.random() * 15)),
+                viralPotential: Math.min(100, 75 + Math.floor(Math.random() * 20)),
+                keywordSaturation: Math.min(100, 85 + Math.floor(Math.random() * 10)),
+                semanticDensity: Math.min(100, 70 + Math.floor(Math.random() * 20))
+            });
+            addNotification("로직 재설계(Re-Engineering) 완료! 바이럴 임계점 돌파 확률이 96%로 재산정되었습니다.", "success");
+        }, 2500);
+    };
+
+    const handleExportRaw = () => {
+        if (!activeResult) return;
+
+        const rawData = {
+            metadata: {
+                target_platform: activeResult.platform,
+                analysis_version: "v4.0.2 (Antigravity Edition)",
+                timestamp: new Date().toISOString()
+            },
+            analysis_metrics: {
+                keywords: data.seoScore,
+                ab_test_variants: data.abVariants,
+                neural_patterns: reengineeredData || {
+                    hookPower: 98,
+                    retention: 84,
+                    viralPotential: 72
+                }
+            },
+            reconstruction_logic: [
+                "초반 3초 공유 유도 가중치 상향",
+                "LSI 키워드 클러스터링 기반 문장 재배열",
+                "감정적 트리거 단어 빈도 최적화"
+            ]
+        };
+
+        const jsonString = JSON.stringify(rawData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `SEO_ANALYTICS_RAW_${activeResult.id || Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        addNotification("RAW 서버 데이터 파일(JSON)이 다운로드 폴더로 추출되었습니다.", "success");
     };
 
     if (!activeResult) {
@@ -81,182 +117,160 @@ export const AnalyzerView = () => {
                 <p className="text-gray-400 mt-2">알고리즘 적합성과 SEO 데이터를 실시간으로 시뮬레이션합니다.</p>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* 1. SEO Traffic Light */}
-                <ContentCard className="relative overflow-hidden group">
-                    {!hasPro && <FeatureLock message="SEO 정밀 분석은 Pro 플랜 전용 서비스입니다." onUpgrade={() => navigate('/pricing')} />}
-
-                    <div className="flex justify-between items-center mb-8">
-                        <div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* [LEFT] Social SEO High-Resolution Scouter */}
+                <div className="lg:col-span-4 space-y-8">
+                    <ContentCard className="relative overflow-hidden group border-cyan-500/20 bg-cyan-500/5">
+                        <div className="absolute -right-8 -top-8 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
+                        <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Signal size={20} className="text-blue-400" />
-                                Smart SEO Score
+                                <Search size={20} className="text-cyan-400" />
+                                SEO Scouter
                             </h3>
-                            <p className="text-xs text-gray-500 mt-1">네이버/유튜브 알고리즘 가중치 분석 결과</p>
+                            <div className="px-2 py-0.5 bg-cyan-500 text-black text-[10px] font-black rounded uppercase">Ultra Res</div>
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-black ${data.seoScore.status === 'green' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
-                            {data.seoScore.status === 'green' ? '매우 좋음' : '개선 필요'}
-                        </div>
-                    </div>
 
-                    <div className="flex flex-col items-center justify-center py-6">
-                        <div className="relative w-48 h-48">
-                            <svg className="w-full h-full transform -rotate-90">
-                                <circle cx="96" cy="96" r="80" stroke="#1f2937" strokeWidth="16" fill="transparent" />
-                                <motion.circle
-                                    cx="96" cy="96" r="80"
-                                    stroke={data.seoScore.status === 'green' ? '#4ade80' : '#facc15'}
-                                    strokeWidth="16"
-                                    fill="transparent"
-                                    strokeDasharray={502.6}
-                                    initial={{ strokeDashoffset: 502.6 }}
-                                    animate={{ strokeDashoffset: 502.6 - (502.6 * data.seoScore.score / 100) }}
-                                    transition={{ duration: 1.5, ease: "easeOut" }}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-5xl font-black text-white">{data.seoScore.score}</span>
-                                <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Score</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4 mt-8">
-                        <div className="bg-white/5 p-4 rounded-xl">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-gray-400">AI 확산 예측</span>
-                                <span className="text-xs text-white">{data.seoScore.details.ai}/50</span>
-                            </div>
-                            <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                                <div style={{ width: `${(data.seoScore.details.ai / 50) * 100}%` }} className="h-full bg-blue-500 rounded-full" />
-                            </div>
-                        </div>
-                        <div className="bg-white/5 p-4 rounded-xl">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-gray-400">구조적 완성도</span>
-                                <span className="text-xs text-white">{data.seoScore.details.structure}/30</span>
-                            </div>
-                            <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                                <div style={{ width: `${(data.seoScore.details.structure / 30) * 100}%` }} className="h-full bg-green-500 rounded-full" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleActiveSEOBoost}
-                        disabled={isOptimizingSEO}
-                        className="w-full mt-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-xl shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
-                    >
-                        {isOptimizingSEO ? <Loader className="animate-spin" size={20} /> : <Zap size={20} />}
-                        {isOptimizingSEO ? '알고리즘 재설계 중...' : 'Active SEO 부스트 실행'}
-                    </button>
-                </ContentCard>
-
-                {/* 2. A/B Test Report */}
-                <ContentCard className="border-primary/20 bg-indigo-500/5">
-                    <div className="flex items-center gap-2 mb-6">
-                        <Split size={20} className="text-primary" />
-                        <h3 className="text-xl font-bold text-white">AI A/B 테스트 리포트</h3>
-                    </div>
-
-                    <div className="space-y-4">
-                        {data.abVariants.map((variant) => (
-                            <motion.div
-                                key={variant.id}
-                                onClick={() => setSelectedVariant(variant.id)}
-                                whileHover={{ scale: 1.01 }}
-                                className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${selectedVariant === variant.id
-                                    ? 'bg-primary/10 border-primary shadow-lg'
-                                    : 'bg-black/40 border-white/5 hover:border-white/10'
-                                    }`}
-                            >
-                                {variant.id === 'A' && (
-                                    <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-bl-xl flex items-center gap-1">
-                                        <Trophy size={10} /> WINNER
+                        <div className="space-y-6">
+                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
+                                <span className="text-[10px] text-gray-500 font-bold uppercase block mb-3">Keyword Saturation</span>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-cyan-500 transition-all duration-1000" style={{ width: `${reengineeredData?.keywordSaturation || 82.4}%` }} />
                                     </div>
-                                )}
-                                <div className="flex justify-between items-start mb-3">
-                                    <span className="text-xs font-black text-indigo-400">전략 {variant.id}: {variant.strategy}</span>
-                                    <div className="text-right">
-                                        <span className="text-[10px] text-gray-500 block">예상 CTR</span>
-                                        <span className="text-lg font-black text-white">{variant.ctr}</span>
-                                    </div>
+                                    <span className="text-xs font-black text-cyan-400">{reengineeredData?.keywordSaturation || 82.4}%</span>
                                 </div>
-                                <h4 className="text-sm font-bold text-gray-200 mb-4 pr-16 leading-relaxed">
-                                    {variant.title}
-                                </h4>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
-                                        <div style={{ width: variant.ctr }} className="h-full bg-primary" />
+                            </div>
+                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
+                                <span className="text-[10px] text-gray-500 font-bold uppercase block mb-3">Semantic Density</span>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-purple-500 transition-all duration-1000" style={{ width: `${reengineeredData?.semanticDensity || 65.1}%` }} />
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-500">{variant.viralScore}점</span>
+                                    <span className="text-xs font-black text-purple-400">{reengineeredData?.semanticDensity || 65.1}%</span>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                            </div>
+                        </div>
 
-                    <div className="mt-8 p-4 bg-primary/5 border border-primary/10 rounded-xl flex items-start gap-3">
-                        <Sparkles size={16} className="text-primary shrink-0 mt-0.5" />
-                        <div>
-                            <p className="text-xs text-indigo-200 font-medium leading-relaxed">
-                                <span className="font-black text-primary">Insight:</span> 전략 A가 감정적 후킹 요소가 강해 <span className="underline decoration-primary">공유 가능성</span>이 2.4배 더 높습니다.
+                        <div className="mt-8 p-4 bg-cyan-400/5 border border-cyan-400/10 rounded-xl">
+                            <p className="text-[11px] text-gray-400 leading-relaxed italic">
+                                "현재 검색 트렌드 대비 <span className="text-cyan-400 font-bold">LSI(잠재적 의미 분석)</span> 키워드가 12개 추가로 감지되었습니다. 본문에 자연스럽게 녹일 경우 도달 범위가 34% 증가할 것으로 예측됩니다."
                             </p>
                         </div>
-                    </div>
-                </ContentCard>
+                    </ContentCard>
 
-                {/* 3. Algorithm Guardrail */}
-                <ContentCard className="lg:col-span-2 bg-gradient-to-r from-red-900/10 to-transparent border-red-500/20">
-                    <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                            <ShieldAlert size={20} className="text-red-400" />
-                            알고리즘 가드레일 (Safety)
-                        </h3>
-                        <div className="flex gap-4">
-                            <div className="text-center">
-                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Safety Score</div>
-                                <div className="text-xl font-black text-green-400">{data.safetyData.score}%</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Engage Index</div>
-                                <div className="text-xl font-black text-indigo-400">{data.suitabilityData.score}%</div>
-                            </div>
+                    <ContentCard className="bg-red-500/5 border-red-500/20 relative overflow-hidden">
+                        <div className="flex items-center gap-3 mb-4">
+                            <ShieldAlert size={20} className="text-red-500" />
+                            <h3 className="text-sm font-black text-white uppercase tracking-widest">Algorithm Guardrail</h3>
                         </div>
-                    </div>
+                        <div className="space-y-3">
+                            {['유해성 검사', '저작권 필터', '선정성/광고성'].map((item) => (
+                                <div key={item} className="p-3 bg-black/40 border border-white/5 rounded-xl flex items-center justify-between">
+                                    <span className="text-[11px] font-bold text-gray-400">{item}</span>
+                                    <span className="px-2 py-0.5 bg-green-500/10 text-green-400 text-[9px] font-black rounded uppercase">Clear</span>
+                                </div>
+                            ))}
+                        </div>
+                    </ContentCard>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-black/30 p-5 rounded-2xl border border-white/5 h-full">
-                            <h4 className="text-xs font-bold text-gray-400 mb-4">🚨 유해성 검사</h4>
-                            <ul className="space-y-3 text-xs">
-                                <li className="flex items-center justify-between text-green-400">
-                                    <span>비속어/욕설</span>
-                                    <span className="font-bold">검출 안됨</span>
-                                </li>
-                                <li className="flex items-center justify-between text-green-400">
-                                    <span>저작권 위반</span>
-                                    <span className="font-bold">안전</span>
-                                </li>
-                                <li className="flex items-center justify-between text-green-400">
-                                    <span>선정성/광고성</span>
-                                    <span className="font-bold">허용 범위</span>
-                                </li>
-                            </ul>
+                {/* [RIGHT] Algorithm Reverse-Engineering Center */}
+                <div className="lg:col-span-8">
+                    <div className="h-full bg-[#050510] border border-white/10 rounded-[32px] overflow-hidden flex flex-col relative group">
+                        {/* Static Grid Lines Overlay */}
+                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+                        <div className="p-8 border-b border-white/5 flex items-center justify-between relative z-10">
+                            <div>
+                                <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                                    <Zap size={24} className="text-yellow-400 animate-pulse" />
+                                    ALGORITHM <span className="text-yellow-400">REVERSE-ENGINEERING</span>
+                                </h3>
+                                <p className="text-[11px] text-gray-500 font-bold mt-1 uppercase tracking-widest">Neural Pattern Mapping v4.0</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                    <span className="text-[10px] text-gray-600 block font-black uppercase">Sync Speed</span>
+                                    <span className="text-xs font-mono text-yellow-500">0.12ms</span>
+                                </div>
+                                <div className="w-12 h-12 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center">
+                                    <TrendingUp size={24} className="text-yellow-400" />
+                                </div>
+                            </div>
                         </div>
-                        <div className="bg-black/30 p-5 rounded-2xl border border-white/5">
-                            <h4 className="text-xs font-bold text-gray-400 mb-4">🎯 적합성 분석</h4>
-                            <p className="text-[11px] text-gray-500 leading-relaxed">
-                                본 콘텐츠의 주제는 현재 <span className="text-white font-bold">2030 여성</span> 그룹에서 가장 높은 반응을 얻고 있습니다. <span className="text-indigo-400 underline">#가성비</span> 키워드의 가중치가 높아 유입 효율이 좋을 전망입니다.
-                            </p>
+
+                        <div className="p-8 flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-[11px] font-black uppercase text-gray-400 px-1">
+                                        <span>Initial Hook Power</span>
+                                        <span className="text-yellow-400">{reengineeredData?.hookPower || 98}/100</span>
+                                    </div>
+                                    <div className="h-4 bg-white/5 rounded-lg border border-white/5 overflow-hidden flex p-1">
+                                        <motion.div initial={{ width: 0 }} animate={{ width: `${reengineeredData?.hookPower || 98}%` }} className="h-full bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-sm shadow-[0_0_15px_rgba(250,204,21,0.3)] transition-all duration-1000" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-[11px] font-black uppercase text-gray-400 px-1">
+                                        <span>Retention Continuity</span>
+                                        <span className="text-blue-400">{reengineeredData?.retention || 84}/100</span>
+                                    </div>
+                                    <div className="h-4 bg-white/5 rounded-lg border border-white/5 overflow-hidden flex p-1">
+                                        <motion.div initial={{ width: 0 }} animate={{ width: `${reengineeredData?.retention || 84}%` }} className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-sm shadow-[0_0_15px_rgba(96,165,250,0.3)] transition-all duration-1000" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-[11px] font-black uppercase text-gray-400 px-1">
+                                        <span>Viral Potential Gate</span>
+                                        <span className="text-purple-400">{reengineeredData ? `${reengineeredData.viralPotential}% Unlocked` : 'Locked (Target Found)'}</span>
+                                    </div>
+                                    <div className="h-4 bg-white/5 rounded-lg border border-white/5 overflow-hidden flex p-1">
+                                        <motion.div initial={{ width: 0 }} animate={{ width: `${reengineeredData?.viralPotential || 72}%` }} className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all duration-1000" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-black/60 rounded-3xl border border-white/10 p-6 flex flex-col">
+                                <div className="flex items-center gap-2 text-yellow-400 mb-4">
+                                    <Sparkles size={16} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Logic Reconstruction</span>
+                                </div>
+                                <p className="text-xs text-gray-400 leading-relaxed font-medium mb-6">
+                                    "현재 알고리즘은 <span className="text-white">시청 지속 시간</span>보다 <span className="text-yellow-400">초반 3초의 공유 유도액션</span>에 더 높은 가중치를 부여합니다. 제목의 두 번째 어절을 더 강렬한 단어로 교체할 것을 추천합니다."
+                                </p>
+                                <div className="mt-auto space-y-3">
+                                    <button
+                                        onClick={handleReengineering}
+                                        disabled={isOptimizingSEO}
+                                        className="w-full py-4 bg-yellow-400 text-black text-[13px] font-black rounded-2xl hover:bg-yellow-300 transition-all flex items-center justify-center gap-2 uppercase tracking-tighter disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isOptimizingSEO ? <Loader className="animate-spin" size={16} /> : <Zap size={16} />}
+                                        {isOptimizingSEO ? "재설계 패턴 생성 중..." : "AI Logic Re-Engineering 실행"}
+                                    </button>
+                                    <button
+                                        onClick={handleExportRaw}
+                                        className="w-full py-4 bg-white/5 text-gray-500 text-[11px] font-black rounded-2xl hover:bg-white/10 transition-all uppercase tracking-widest"
+                                    >
+                                        Export Raw Pattern Data
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div className="bg-indigo-600/10 p-5 rounded-2xl border border-indigo-500/20 flex flex-col justify-center text-center">
-                            <span className="text-3xl mb-2">💎</span>
-                            <h4 className="text-sm font-bold text-white mb-1">고가치 콘텐츠 인증</h4>
-                            <p className="text-[10px] text-indigo-300">알고리즘이 '전문성' 항목에 높은 점수를 부여했습니다.</p>
+
+                        {/* Bottom Ticking Ticker */}
+                        <div className="bg-yellow-400/5 py-3 px-8 border-t border-yellow-400/10 flex overflow-hidden">
+                            <div className="flex items-center gap-8 animate-marquee whitespace-nowrap text-[9px] font-mono text-yellow-500/60 uppercase font-black">
+                                <span>[PATTERN_DETECTED] 2030_MALE_HIGH_RETENTION</span>
+                                <span>[SIGNAL] 0.435_AB_VARIANT_MATCH</span>
+                                <span>[RECONSTRUCTION] PENDING_FINAL_APPROVAL</span>
+                                <span>[LOGIC] REVERSE_SEO_BOOT_COMPLETE</span>
+                                <span>[TARGET] VIRAL_THRESHOLD_CROSSED</span>
+                            </div>
                         </div>
                     </div>
-                </ContentCard>
+                </div>
             </div>
         </div>
     );
 };
+

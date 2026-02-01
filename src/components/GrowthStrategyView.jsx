@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Rocket, Target, Calendar, TrendingUp, DollarSign, Globe, CheckCircle2, ChevronRight, Zap, Search, ArrowUpRight, BarChart } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Rocket, Target, Calendar, TrendingUp, DollarSign, Globe, CheckCircle2, ChevronRight, Zap, Search, ArrowUpRight, BarChart, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { cn } from '../lib/utils';
+import { generateGrowthRoadmap } from '../lib/cerebras';
 
 const StrategyCard = ({ title, icon: Icon, children, className = "" }) => (
     <div className={`bg-surface/40 border border-white/5 rounded-3xl p-8 ${className}`}>
@@ -18,17 +19,107 @@ const StrategyCard = ({ title, icon: Icon, children, className = "" }) => (
 );
 
 export const GrowthStrategyView = () => {
-    const { activeResult, user } = useUser();
+    const { activeResult, user, updateHistoryItem, addNotification } = useUser();
     const navigate = useNavigate();
+    const [aiCampaign, setAiCampaign] = useState(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const currentTopic = activeResult?.topic || '콘텐츠';
     const currentPlatform = activeResult?.platform || '전체';
 
+    useEffect(() => {
+        if (activeResult?.campaign) {
+            setAiCampaign(activeResult.campaign);
+        } else if (activeResult?.topic) {
+            handleDeepAnalysis();
+        }
+    }, [activeResult?.id]);
+
+    const handleDeepAnalysis = async () => {
+        if (!activeResult?.topic) return;
+        setIsGenerating(true);
+        try {
+            const result = await generateGrowthRoadmap(activeResult.topic, activeResult.platform);
+            if (result && result.campaign) {
+                setAiCampaign(result.campaign);
+                // History에 저장하여 다음에도 볼 수 있게 함
+                if (activeResult.id) {
+                    await updateHistoryItem(activeResult.id, { campaign: result.campaign });
+                }
+            }
+        } catch (error) {
+            console.error("Failed to generate growth roadmap:", error);
+            addNotification("전략 로드맵 생성 중 오류가 발생했습니다.", "error");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const data = {
-        campaign: activeResult?.campaign || [
-            { day: 1, platform: currentPlatform, strategy: 'Initial Viral Launch', detail: `"${currentTopic}" 주제의 핵심 훅을 활용해 초기 조기 도달을 유도합니다.` },
-            { day: 3, platform: 'Multi-Channel', strategy: 'Cross-Promotion', detail: `OSMU 변환된 버전으로 다른 플랫폼의 잠재 고객을 본문으로 끌어옵니다.` },
-            { day: 7, platform: 'Community', strategy: 'Engagement Boost', detail: `댓글과 피드백을 분석하여 후속 "${currentTopic}" 콘텐츠의 방향성을 결정합니다.` }
+        campaign: aiCampaign || activeResult?.campaign || [
+            {
+                day: 1,
+                platform: currentPlatform,
+                strategy: 'Phase 1: Algorithm Penetration & High-CTR Ignition',
+                detail: (
+                    <div className="space-y-2 mt-2">
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">01.</span>
+                            <span><b>{currentTopic}</b> 주제의 <b>초기 임팩트 극대화</b>를 위한 심리학적 <b>도파민 자극형 훅</b> 배치</span>
+                        </div>
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">02.</span>
+                            <span>검색 엔진 <b>실시간 인덱싱 최적화</b>를 목표로 주요 키워드 초반 100자 이내 배치</span>
+                        </div>
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">03.</span>
+                            <span>알고리즘 <b>Viral Velocity</b> 구간 진입을 위한 초기 3시간 데이터 트리거링</span>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                day: 3,
+                platform: 'Multi-Channel',
+                strategy: 'Phase 2: Cross-Platform Omni-Channel Expansion',
+                detail: (
+                    <div className="space-y-2 mt-2">
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">01.</span>
+                            <span><b>{currentTopic}</b> 메인 콘텐츠 생명력 연장을 위한 플랫폼 전용 <b>OSMU 변형</b> 실행</span>
+                        </div>
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">02.</span>
+                            <span>강력한 <b>백링크 소셜 시그널</b> 생성을 위한 타 플랫폼 교차 프로모션 활성화</span>
+                        </div>
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">03.</span>
+                            <span>유입 경로 다각화를 위한 <b>옴니 채널 깔때기(Omni-Channel Funnel)</b> 전략 실현</span>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                day: 7,
+                platform: 'Community',
+                strategy: 'Phase 3: Recursive Retention & Authority Lockdown',
+                detail: (
+                    <div className="space-y-2 mt-2">
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">01.</span>
+                            <span><b>{currentTopic}</b> 관련 1주일간의 <b>인게이지먼트 지표</b> 분석 및 이탈 방지 리텐션 재설계</span>
+                        </div>
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">02.</span>
+                            <span>유저 피드백 기반 <b>2차 파생 콘텐츠</b> 발행을 통해 바이럴 확산 파동 유도</span>
+                        </div>
+                        <div className="flex gap-2 items-start text-xs leading-relaxed">
+                            <span className="text-indigo-400 font-black shrink-0">03.</span>
+                            <span>핵심 키워드의 <b>SERP 점유</b> 및 알고리즘 권위 지수(Authority Index) 최종 록인</span>
+                        </div>
+                    </div>
+                )
+            }
         ],
         profitData: {
             total: activeResult?.platform?.includes('Blog') ? '약 1,200,000원' : '약 3,500,000원',
@@ -63,14 +154,24 @@ export const GrowthStrategyView = () => {
                     </h1>
                     <p className="text-gray-400 mt-2">주제 <span className="text-white font-bold">"{currentTopic}"</span>에 최적화된 마케팅 로드맵입니다.</p>
                 </div>
-                <div className="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
-                    <div className="text-right">
-                        <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Strategist AI</span>
-                        <div className="flex items-center gap-2">
-                            <CheckCircle2 size={14} className="text-green-500" />
-                            <span className="text-xs text-white font-bold">분석 완료</span>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
+                        <div className="text-right">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Strategist AI</span>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 size={14} className="text-green-500" />
+                                <span className="text-xs text-white font-bold">분석 완료</span>
+                            </div>
                         </div>
                     </div>
+                    <button
+                        onClick={handleDeepAnalysis}
+                        disabled={isGenerating}
+                        className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 p-3 rounded-xl border border-indigo-500/20 transition-all flex items-center gap-2 group"
+                    >
+                        <RefreshCw size={18} className={cn(isGenerating && "animate-spin")} />
+                        <span className="text-xs font-bold hidden md:inline">재분석</span>
+                    </button>
                 </div>
             </header>
 
@@ -93,7 +194,7 @@ export const GrowthStrategyView = () => {
                                     </div>
                                     <div className={cn(
                                         "flex-1 bg-white/5 rounded-3xl p-6 border transition-all",
-                                        step.platform.includes(currentPlatform)
+                                        (step.platform || "").includes(currentPlatform)
                                             ? "border-indigo-500 bg-indigo-500/5 shadow-2xl"
                                             : "border-white/5 hover:border-indigo-500/30"
                                     )}>
@@ -101,20 +202,26 @@ export const GrowthStrategyView = () => {
                                             <div className="flex items-center gap-3">
                                                 <span className={cn(
                                                     "text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded",
-                                                    step.platform.includes(currentPlatform) ? "bg-indigo-500 text-white" : "text-indigo-400 bg-indigo-500/10"
-                                                )}>{step.platform}</span>
+                                                    (step.platform || "").includes(currentPlatform) ? "bg-indigo-500 text-white" : "text-indigo-400 bg-indigo-500/10"
+                                                )}>{step.platform || 'General'}</span>
                                                 <span className="text-[10px] font-black text-gray-600">|</span>
                                                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">TACTIC #{idx + 1}</span>
                                             </div>
-                                            {step.platform.includes(currentPlatform) && (
+                                            {(step.platform || "").includes(currentPlatform) && (
                                                 <div className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-black animate-pulse">CURRENT FOCUS</div>
                                             )}
-                                            {!step.platform.includes(currentPlatform) && (
+                                            {!(step.platform || "").includes(currentPlatform) && (
                                                 <div className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-[10px] font-bold">High Priority</div>
                                             )}
                                         </div>
                                         <h4 className="text-lg font-bold text-white mb-2">{step.strategy}</h4>
-                                        <p className="text-sm text-gray-400 leading-relaxed font-medium">{step.detail}</p>
+                                        <div className="text-sm text-gray-400 leading-relaxed font-medium">
+                                            {typeof step.detail === 'string' ? (
+                                                <div dangerouslySetInnerHTML={{ __html: step.detail }} />
+                                            ) : (
+                                                step.detail
+                                            )}
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
